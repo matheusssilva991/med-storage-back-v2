@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -174,7 +175,7 @@ export class SolicitationService {
     }
 
     if (solicitation) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'Já existe solicitação de cadastro com esse email',
       );
     }

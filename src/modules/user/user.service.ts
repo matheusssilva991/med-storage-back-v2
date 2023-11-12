@@ -198,7 +198,7 @@ export class UserService {
 
     // se o email já estiver cadastrado, lança uma exceção
     if (user) {
-      throw new NotFoundException('Email já cadastrado');
+      throw new BadRequestException('Email já cadastrado');
     }
   }
 }
