@@ -5,7 +5,7 @@ import { CreateExamTypeDTO } from './dto/create-exam-type.dto';
 import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
 import { ExamTypeService } from './exam-type.service';
 
-@Controller()
+@Controller('api')
 export class ExamTypeController {
   constructor(private readonly examTypeService: ExamTypeService) {}
 

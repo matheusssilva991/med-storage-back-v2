@@ -18,7 +18,7 @@ export class ExamTypeService {
 
   async create(data: CreateExamTypeDTO) {
     // verifica se o tipo de exame já existe
-    await this.examTypeNameExists(data.name);
+    await this.examTypeAlreadyExists(data.name);
 
     try {
       const examType = new this.examTypeModel(data);
@@ -51,8 +51,17 @@ export class ExamTypeService {
     // verifica se o tipo de exame existe
     await this.examTypeExists(id);
 
-    // verifica se o tipo de exame já existe
-    await this.examTypeNameExists(data.name);
+    let examType = null;
+    try {
+      examType = await this.examTypeModel.findById(id);
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+
+    if (examType.name !== data.name) {
+      // verifica se o tipo de exame já existe
+      await this.examTypeAlreadyExists(data.name);
+    }
 
     try {
       return await this.examTypeModel
@@ -87,7 +96,7 @@ export class ExamTypeService {
     }
   }
 
-  async examTypeNameExists(name: string) {
+  async examTypeAlreadyExists(name: string) {
     let examType = null;
     try {
       // Use uma expressão regular case-sensitive para a comparação

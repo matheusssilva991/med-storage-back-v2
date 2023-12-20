@@ -4,6 +4,7 @@ import { UserModule } from './modules/user/user.module';
 import { SolicitationModule } from './modules/solicitation/solicitation.module';
 import { ConfigModule } from '@nestjs/config';
 import { ExamTypeModule } from './modules/exam-type/exam-type.module';
+import { ImageTypeModule } from './modules/image-type/image-type.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ExamTypeModule } from './modules/exam-type/exam-type.module';
     UserModule,
     SolicitationModule,
     ExamTypeModule,
+    ImageTypeModule,
   ],
   controllers: [],
   providers: [],

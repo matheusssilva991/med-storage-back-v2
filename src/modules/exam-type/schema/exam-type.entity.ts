@@ -5,7 +5,7 @@ export type ExamTypeDocument = HydratedDocument<ExamType>;
 
 @Schema()
 export class ExamType {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string;
 }
 

@@ -9,8 +9,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model, Types } from 'mongoose';
-import { SolicitationStatus } from 'src/enum/solicitationStatus.enum';
-import { SolicitationType } from 'src/enum/solicitationType.enum';
+import { SolicitationStatus } from '../../enum/solicitationStatus.enum';
+import { SolicitationType } from '../../enum/solicitationType.enum';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { CreateSolicitationDTO } from './dto/create-solicitation.dto';
@@ -25,7 +25,7 @@ export class SolicitationService {
     private readonly userService: UserService,
   ) {}
 
-  async createSolicitation(data: CreateSolicitationDTO) {
+  async create(data: CreateSolicitationDTO) {
     // Cripitografar a senha do usuário se o tipo da solicitação for NewUser
     if (data.type === SolicitationType.NewUser) {
       const { password } = data.data as CreateUserDTO;
@@ -35,10 +35,10 @@ export class SolicitationService {
       data.data['password'] = hash;
 
       // Verifica se já existe usuário com esse email
-      await this.userService.emailExists(data.data['email']);
+      await this.userService.emailAlreadyExists(data.data['email']);
 
       // Verifica se já existe solicitação de cadastro com esse email
-      await this.solicitationEmailExists(data.data['email']);
+      await this.solicitationEmailAlreadyExists(data.data['email']);
     }
 
     // Definir status como Pending
@@ -64,7 +64,7 @@ export class SolicitationService {
     }
   }
 
-  async getSolicitations() {
+  async findAll() {
     try {
       // Busca todas as solicitações no banco de dados
       const solicitations = await this.solicitationModel.find().exec();
@@ -84,7 +84,7 @@ export class SolicitationService {
     }
   }
 
-  async getSolicitationById(id: Types.ObjectId) {
+  async findOne(id: Types.ObjectId) {
     // Verifica se a solicitação existe
     await this.solicitationExists(id);
 
@@ -105,7 +105,7 @@ export class SolicitationService {
     }
   }
 
-  async updateSolicitation(id: Types.ObjectId, data: UpdateSolicitationDTO) {
+  async update(id: Types.ObjectId, data: UpdateSolicitationDTO) {
     // Verifica se a solicitação existe
     await this.solicitationExists(id);
 
@@ -127,7 +127,7 @@ export class SolicitationService {
     }
   }
 
-  async deleteSolicitation(id: Types.ObjectId) {
+  async remove(id: Types.ObjectId) {
     // Verifica se a solicitação existe
     await this.solicitationExists(id);
 
@@ -163,7 +163,7 @@ export class SolicitationService {
     }
   }
 
-  async solicitationEmailExists(email: string) {
+  async solicitationEmailAlreadyExists(email: string) {
     let solicitation = null;
     try {
       solicitation = await this.solicitationModel.exists({

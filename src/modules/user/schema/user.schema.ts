@@ -28,6 +28,17 @@ export class User {
 
   @Prop({ required: true, default: 'user' })
   role: string;
+
+  constructor(user?: Partial<User>) {
+    this.name = user?.name;
+    this.email = user?.email;
+    this.password = user?.password;
+    this.institution = user?.institution;
+    this.country = user?.country;
+    this.city = user?.city;
+    this.lattes = user?.lattes;
+    this.role = user?.role;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

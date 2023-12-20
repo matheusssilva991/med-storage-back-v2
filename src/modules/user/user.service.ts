@@ -1,4 +1,3 @@
-import { CreateUserBySolicitationDTO } from './dto/create-user-by-solicitation.dto';
 import {
   BadRequestException,
   Injectable,
@@ -8,11 +7,13 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model, Types } from 'mongoose';
-import { CreateUserDTO } from './dto/create-user.dto';
-import { User } from './schema/user.schema';
+import { SolicitationStatus } from '../../enum/solicitationStatus.enum';
+import { SolicitationType } from '../../enum/solicitationType.enum';
 import { Solicitation } from '../solicitation/schema/solicitation.schema';
-import { SolicitationType } from 'src/enum/solicitationType.enum';
-import { SolicitationStatus } from 'src/enum/solicitationStatus.enum';
+import { CreateUserBySolicitationDTO } from './dto/create-user-by-solicitation.dto';
+import { CreateUserDTO } from './dto/create-user.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { User } from './schema/user.schema';
 
 @Injectable()
 export class UserService {
@@ -21,9 +22,9 @@ export class UserService {
     @InjectModel('solicitation') private solicitationModel: Model<Solicitation>,
   ) {}
 
-  async createUser(data: CreateUserDTO) {
+  async create(data: CreateUserDTO) {
     // verifica se o email já está cadastrado
-    await this.emailExists(data.email);
+    await this.emailAlreadyExists(data.email);
 
     try {
       // cripitografar a senha do usuário
@@ -40,7 +41,7 @@ export class UserService {
     }
   }
 
-  async createUserBySolicitation(data: CreateUserBySolicitationDTO) {
+  async createBySolicitation(data: CreateUserBySolicitationDTO) {
     let solicitation = null;
     try {
       // Tenta encontrar a solicitação no banco de dados
@@ -67,7 +68,7 @@ export class UserService {
     }
 
     // verifica se o email já está cadastrado
-    await this.emailExists(solicitation.data['email']);
+    await this.emailAlreadyExists(solicitation.data['email']);
 
     try {
       // cria o novo usuário e salva ele no banco de dados
@@ -91,7 +92,7 @@ export class UserService {
     }
   }
 
-  async getUsers() {
+  async findAll() {
     try {
       return await this.userModel.find({}, { password: 0 }).exec();
     } catch (error) {
@@ -99,7 +100,7 @@ export class UserService {
     }
   }
 
-  async getUserById(id: Types.ObjectId) {
+  async findOne(id: Types.ObjectId) {
     // verifica se o usuário existe
     await this.userExists(id);
 
@@ -110,9 +111,9 @@ export class UserService {
     }
   }
 
-  async getUserByEmail(email: string) {
+  async findOneByEmail(email: string) {
     // verifica se o email existe
-    await this.emailExists(email);
+    await this.emailAlreadyExists(email);
 
     try {
       return await this.userModel
@@ -123,7 +124,7 @@ export class UserService {
     }
   }
 
-  async updateUser(id: Types.ObjectId, data: CreateUserDTO) {
+  async update(id: Types.ObjectId, data: UpdateUserDTO) {
     // verifica se o usuário existe
     await this.userExists(id);
 
@@ -136,7 +137,7 @@ export class UserService {
 
     // verifica se o email já está cadastrado
     if (user.email !== data.email) {
-      await this.emailExists(data.email);
+      await this.emailAlreadyExists(data.email);
     }
 
     try {
@@ -160,7 +161,7 @@ export class UserService {
     }
   }
 
-  async deleteUser(id: Types.ObjectId) {
+  async remove(id: Types.ObjectId) {
     // verifica se o usuário existe
     await this.userExists(id);
 
@@ -188,7 +189,7 @@ export class UserService {
     }
   }
 
-  async emailExists(email: string) {
+  async emailAlreadyExists(email: string) {
     let user = null;
     try {
       user = await this.userModel.exists({ email });

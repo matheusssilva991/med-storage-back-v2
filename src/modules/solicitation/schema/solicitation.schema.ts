@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { SolicitationStatus } from 'src/enum/solicitationStatus.enum';
-import { SolicitationType } from 'src/enum/solicitationType.enum';
+import { SolicitationStatus } from '../../../enum/solicitationStatus.enum';
+import { SolicitationType } from '../../../enum/solicitationType.enum';
 
 export type SolicitationDocument = HydratedDocument<Solicitation>;
 
