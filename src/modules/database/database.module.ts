@@ -14,5 +14,6 @@ import { DatabaseSchema } from './schema/database.entity';
   ],
   controllers: [DatabaseController],
   providers: [DatabaseService],
+  exports: [DatabaseService],
 })
 export class DatabaseModule {}

@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Delete } from '@nestjs/common';
 import { DatabaseService } from './database.service';
-import { CreateDatabaseDto } from './dto/create-database.dto';
+import { CreateDatabaseDTO } from './dto/create-database.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
 import { ParamID } from 'src/decorators/params-id.decorator';
 import { Types } from 'mongoose';
@@ -10,7 +10,7 @@ export class DatabaseController {
   constructor(private readonly databaseService: DatabaseService) {}
 
   @Post('database')
-  async create(@Body() createDatabaseDto: CreateDatabaseDto) {
+  async create(@Body() createDatabaseDto: CreateDatabaseDTO) {
     return this.databaseService.create(createDatabaseDto);
   }
 

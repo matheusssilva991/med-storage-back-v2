@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ParamID } from 'src/decorators/params-id.decorator';
 import { CreateExamTypeDTO } from './dto/create-exam-type.dto';
-import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
+import { UpdateExamTypeDTO } from './dto/update-exam-type.dto';
 import { ExamTypeService } from './exam-type.service';
 
 @Controller('api')
@@ -25,7 +25,7 @@ export class ExamTypeController {
   }
 
   @Patch('exam-type/:id')
-  async update(@ParamID() id: Types.ObjectId, @Body() data: UpdateExamTypeDto) {
+  async update(@ParamID() id: Types.ObjectId, @Body() data: UpdateExamTypeDTO) {
     return await this.examTypeService.update(id, data);
   }
 

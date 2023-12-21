@@ -8,9 +8,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import { validate } from 'class-validator';
 import { Model, Types } from 'mongoose';
 import { SolicitationStatus } from '../../enum/solicitationStatus.enum';
 import { SolicitationType } from '../../enum/solicitationType.enum';
+import { DatabaseService } from '../database/database.service';
+import { CreateDatabaseDTO } from '../database/dto/create-database.dto';
+import { ExamTypeService } from '../exam-type/exam-type.service';
+import { ImageTypeService } from '../image-type/image-type.service';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { CreateSolicitationDTO } from './dto/create-solicitation.dto';
@@ -23,11 +28,30 @@ export class SolicitationService {
     @InjectModel('solicitation') private solicitationModel: Model<Solicitation>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly databaseService: DatabaseService,
+    private readonly imageTypeService: ImageTypeService,
+    private readonly examTypeService: ExamTypeService,
   ) {}
 
   async create(data: CreateSolicitationDTO) {
-    // Cripitografar a senha do usuário se o tipo da solicitação for NewUser
+    let dto: CreateUserDTO | CreateDatabaseDTO;
+
+    // Verifica se o tipo da solicitação é de novo usuário
     if (data.type === SolicitationType.NewUser) {
+      dto = new CreateUserDTO();
+      Object.assign(dto, data.data);
+
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        throw new BadRequestException(
+          errors
+            .map((error) => error.constraints)
+            .map((error) => Object.values(error))
+            .flat(),
+        );
+      }
+
+      // Cripitografar a senha do usuário se o tipo da solicitação for NewUser
       const { password } = data.data as CreateUserDTO;
 
       const salt = await bcrypt.genSalt(10);
@@ -38,7 +62,32 @@ export class SolicitationService {
       await this.userService.emailAlreadyExists(data.data['email']);
 
       // Verifica se já existe solicitação de cadastro com esse email
-      await this.solicitationEmailAlreadyExists(data.data['email']);
+      await this.solicitationUserEmailAlreadyExists(data.data['email']);
+
+      // Verifica se o tipo da solicitação é de novo banco de dados
+    } else if (data.type === SolicitationType.NewDatabase) {
+      dto = new CreateDatabaseDTO();
+      Object.assign(dto, data.data);
+
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        throw new BadRequestException(
+          errors
+            .map((error) => error.constraints)
+            .map((error) => Object.values(error))
+            .flat(),
+        );
+      }
+
+      // Verifica se já existe banco de dados com esse nome
+      await this.databaseService.databaseAlreadyExists(data.data['name']);
+
+      // Verifica se já existe solicitação de banco de dados com esse nome
+      await this.solicitationDatabaseAlreadyExists(data.data['name']);
+
+      // Verifica se o tipo de imagem e o tipo de exame existem
+      await this.imageTypeService.imageTypeExistsByName(data.data['imageType']);
+      await this.examTypeService.examTypeExistsByName(data.data['examType']);
     }
 
     // Definir status como Pending
@@ -163,7 +212,7 @@ export class SolicitationService {
     }
   }
 
-  async solicitationEmailAlreadyExists(email: string) {
+  async solicitationUserEmailAlreadyExists(email: string) {
     let solicitation = null;
     try {
       solicitation = await this.solicitationModel.exists({
@@ -176,7 +225,25 @@ export class SolicitationService {
 
     if (solicitation) {
       throw new BadRequestException(
-        'Já existe solicitação de cadastro com esse email',
+        'Já existe solicitação de cadastro de usuário com esse email',
+      );
+    }
+  }
+
+  async solicitationDatabaseAlreadyExists(name: string) {
+    let solicitation = null;
+    try {
+      solicitation = await this.solicitationModel.exists({
+        type: SolicitationType.NewDatabase,
+        'data.name': name,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+
+    if (solicitation) {
+      throw new BadRequestException(
+        'Já existe solicitação de cadastro de banco de imagens com esse nome',
       );
     }
   }

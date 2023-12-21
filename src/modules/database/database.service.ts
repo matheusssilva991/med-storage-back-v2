@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Types, Model } from 'mongoose';
-import { CreateDatabaseDto } from './dto/create-database.dto';
+import { CreateDatabaseDTO } from './dto/create-database.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Database } from './schema/database.entity';
@@ -20,7 +20,7 @@ export class DatabaseService {
     private readonly examTypeService: ExamTypeService,
   ) {}
 
-  async create(data: CreateDatabaseDto) {
+  async create(data: CreateDatabaseDTO) {
     // verifica se o banco de imagens já existe
     await this.databaseAlreadyExists(data.name);
 

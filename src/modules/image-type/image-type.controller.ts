@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ParamID } from '../../decorators/params-id.decorator';
-import { CreateImageTypeDto } from './dto/create-image-type.dto';
-import { UpdateImageTypeDto } from './dto/update-image-type.dto';
+import { CreateImageTypeDTO } from './dto/create-image-type.dto';
+import { UpdateImageTypeDTO } from './dto/update-image-type.dto';
 import { ImageTypeService } from './image-type.service';
 
 @Controller('api')
@@ -10,7 +10,7 @@ export class ImageTypeController {
   constructor(private readonly imageTypeService: ImageTypeService) {}
 
   @Post('image-type')
-  async create(@Body() createImageTypeDto: CreateImageTypeDto) {
+  async create(@Body() createImageTypeDto: CreateImageTypeDTO) {
     return this.imageTypeService.create(createImageTypeDto);
   }
 
@@ -27,7 +27,7 @@ export class ImageTypeController {
   @Patch('image-type/:id')
   async update(
     @ParamID() id: Types.ObjectId,
-    @Body() updateImageTypeDto: UpdateImageTypeDto,
+    @Body() updateImageTypeDto: UpdateImageTypeDTO,
   ) {
     return this.imageTypeService.update(id, updateImageTypeDto);
   }

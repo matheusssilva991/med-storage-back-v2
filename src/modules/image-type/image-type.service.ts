@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CreateImageTypeDto } from './dto/create-image-type.dto';
-import { UpdateImageTypeDto } from './dto/update-image-type.dto';
+import { CreateImageTypeDTO } from './dto/create-image-type.dto';
+import { UpdateImageTypeDTO } from './dto/update-image-type.dto';
 import { ImageType } from './schema/image-type.entity';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class ImageTypeService {
     @InjectModel('imageType') private imageTypeModel: Model<ImageType>,
   ) {}
 
-  async create(data: CreateImageTypeDto) {
+  async create(data: CreateImageTypeDTO) {
     // verifica se o tipo de imagem já existe
     await this.imageTypeAlreadyExists(data.name);
 
@@ -58,7 +58,7 @@ export class ImageTypeService {
     }
   }
 
-  async update(id: Types.ObjectId, data: UpdateImageTypeDto) {
+  async update(id: Types.ObjectId, data: UpdateImageTypeDTO) {
     let imageType = null;
     try {
       imageType = await this.imageTypeModel.findById(id);
@@ -99,6 +99,19 @@ export class ImageTypeService {
     let imageType = null;
     try {
       imageType = await this.imageTypeModel.exists({ _id: id });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+
+    if (!imageType) {
+      throw new NotFoundException('Tipo de imagem não encontrado.');
+    }
+  }
+
+  async imageTypeExistsByName(name: string) {
+    let imageType = null;
+    try {
+      imageType = await this.imageTypeModel.exists({ name });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

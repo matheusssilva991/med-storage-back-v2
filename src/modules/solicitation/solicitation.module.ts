@@ -1,9 +1,12 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { SolicitationService } from './solicitation.service';
-import { SolicitationController } from './solicitation.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { SolicitationSchema } from './schema/solicitation.schema';
+import { DatabaseModule } from '../database/database.module';
+import { ExamTypeModule } from '../exam-type/exam-type.module';
+import { ImageTypeModule } from '../image-type/image-type.module';
 import { UserModule } from '../user/user.module';
+import { SolicitationSchema } from './schema/solicitation.schema';
+import { SolicitationController } from './solicitation.controller';
+import { SolicitationService } from './solicitation.service';
 
 @Module({
   imports: [
@@ -11,6 +14,9 @@ import { UserModule } from '../user/user.module';
       { name: 'solicitation', schema: SolicitationSchema },
     ]),
     forwardRef(() => UserModule),
+    DatabaseModule,
+    ImageTypeModule,
+    ExamTypeModule,
   ],
   providers: [SolicitationService],
   controllers: [SolicitationController],

@@ -1,6 +1,6 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateDatabaseDto {
+export class CreateDatabaseDTO {
   @IsString()
   @IsNotEmpty()
   name: string;

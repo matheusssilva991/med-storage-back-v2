@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateExamTypeDTO } from './dto/create-exam-type.dto';
-import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
+import { UpdateExamTypeDTO } from './dto/update-exam-type.dto';
 import { ExamType } from './schema/exam-type.entity';
 
 @Injectable()
@@ -58,7 +58,7 @@ export class ExamTypeService {
     }
   }
 
-  async update(id: Types.ObjectId, data: UpdateExamTypeDto) {
+  async update(id: Types.ObjectId, data: UpdateExamTypeDTO) {
     let examType = null;
     try {
       examType = await this.examTypeModel.findById(id);
@@ -99,6 +99,19 @@ export class ExamTypeService {
     let examType = null;
     try {
       examType = await this.examTypeModel.exists({ _id: id });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+
+    if (!examType) {
+      throw new NotFoundException('Tipo de exame não encontrado.');
+    }
+  }
+
+  async examTypeExistsByName(name: string) {
+    let examType = null;
+    try {
+      examType = await this.examTypeModel.exists({ name });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
