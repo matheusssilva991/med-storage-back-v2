@@ -5,6 +5,7 @@ import { SolicitationModule } from './modules/solicitation/solicitation.module';
 import { ConfigModule } from '@nestjs/config';
 import { ExamTypeModule } from './modules/exam-type/exam-type.module';
 import { ImageTypeModule } from './modules/image-type/image-type.module';
+import { DatabaseModule } from './modules/database/database.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ImageTypeModule } from './modules/image-type/image-type.module';
     SolicitationModule,
     ExamTypeModule,
     ImageTypeModule,
+    DatabaseModule,
   ],
   controllers: [],
   providers: [],

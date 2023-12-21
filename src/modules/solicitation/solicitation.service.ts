@@ -159,7 +159,7 @@ export class SolicitationService {
     }
 
     if (!solicitation) {
-      throw new NotFoundException('Solicitação não encontrada');
+      throw new NotFoundException('Solicitação não encontrada.');
     }
   }
 

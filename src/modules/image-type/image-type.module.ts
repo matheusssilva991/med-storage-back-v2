@@ -10,5 +10,6 @@ import { ImageTypeSchema } from './schema/image-type.entity';
   ],
   controllers: [ImageTypeController],
   providers: [ImageTypeService],
+  exports: [ImageTypeService],
 })
 export class ImageTypeModule {}

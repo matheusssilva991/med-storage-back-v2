@@ -10,5 +10,6 @@ import { ExamTypeSchema } from './schema/exam-type.entity';
   ],
   controllers: [ExamTypeController],
   providers: [ExamTypeService],
+  exports: [ExamTypeService],
 })
 export class ExamTypeModule {}

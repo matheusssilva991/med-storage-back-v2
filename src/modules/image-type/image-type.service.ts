@@ -47,15 +47,27 @@ export class ImageTypeService {
     }
   }
 
-  async update(id: Types.ObjectId, data: UpdateImageTypeDto) {
-    // verifica se o tipo de image existe
-    await this.imageTypeExists(id);
+  async findByName(name: string) {
+    try {
+      // Use uma expressão regular case-insensitive para a consulta
+      return await this.imageTypeModel
+        .findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } })
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 
+  async update(id: Types.ObjectId, data: UpdateImageTypeDto) {
     let imageType = null;
     try {
       imageType = await this.imageTypeModel.findById(id);
     } catch (error) {
       throw new InternalServerErrorException(error);
+    }
+
+    if (!imageType) {
+      throw new NotFoundException('Tipo de imagem não encontrado.');
     }
 
     // verifica se o nome do tipo de imagem já existe

@@ -47,15 +47,27 @@ export class ExamTypeService {
     }
   }
 
-  async update(id: Types.ObjectId, data: UpdateExamTypeDto) {
-    // verifica se o tipo de exame existe
-    await this.examTypeExists(id);
+  async findByName(name: string) {
+    try {
+      // Use uma expressão regular case-insensitive para a consulta
+      return await this.examTypeModel
+        .findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } })
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 
+  async update(id: Types.ObjectId, data: UpdateExamTypeDto) {
     let examType = null;
     try {
       examType = await this.examTypeModel.findById(id);
     } catch (error) {
       throw new InternalServerErrorException(error);
+    }
+
+    if (!examType) {
+      throw new BadRequestException('Tipo de exame não encontrado.');
     }
 
     if (examType.name !== data.name) {
@@ -92,7 +104,7 @@ export class ExamTypeService {
     }
 
     if (!examType) {
-      throw new NotFoundException('Tipo de exame não encontrado');
+      throw new NotFoundException('Tipo de exame não encontrado.');
     }
   }
 
