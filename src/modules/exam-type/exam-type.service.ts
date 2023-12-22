@@ -24,7 +24,7 @@ export class ExamTypeService {
       const examType = new this.examTypeModel(data);
       return await examType.save();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -32,7 +32,7 @@ export class ExamTypeService {
     try {
       return await this.examTypeModel.find().exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -43,7 +43,7 @@ export class ExamTypeService {
     try {
       return await this.examTypeModel.findById(id).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -54,7 +54,7 @@ export class ExamTypeService {
         .findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } })
         .exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -63,7 +63,7 @@ export class ExamTypeService {
     try {
       examType = await this.examTypeModel.findById(id);
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!examType) {
@@ -80,7 +80,7 @@ export class ExamTypeService {
         .findByIdAndUpdate(id, { $set: data }, { new: true })
         .exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -91,7 +91,7 @@ export class ExamTypeService {
     try {
       return await this.examTypeModel.findByIdAndDelete(id).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -100,7 +100,7 @@ export class ExamTypeService {
     try {
       examType = await this.examTypeModel.exists({ _id: id });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!examType) {
@@ -113,7 +113,7 @@ export class ExamTypeService {
     try {
       examType = await this.examTypeModel.exists({ name });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!examType) {
@@ -129,7 +129,7 @@ export class ExamTypeService {
         name: { $regex: new RegExp(`^${name}$`) },
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (examType) {

@@ -1,18 +1,18 @@
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 
 export class CreateImageTypeDTO {
-  @IsNotEmpty()
-  @IsString()
+  @IsString({ message: 'O nome deve ser uma string.' })
+  @IsNotEmpty({ message: 'O nome não pode ser vazio.' })
   name: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @IsString({ message: 'A descrição deve ser uma string.' })
+  @IsNotEmpty({ message: 'A descrição não pode ser vazia.' })
   description: string;
 
-  @IsNotEmpty()
-  @IsObject()
+  @IsObject({ message: 'Os dados obrigatórios devem ser um objeto.' })
+  @IsNotEmpty({ message: 'Os dados obrigatórios não podem ser vazios.' })
   requiredData: object;
 
-  @IsObject()
+  @IsObject({ message: 'Os dados opcionais devem ser um objeto.' })
   optionalData: object;
 }

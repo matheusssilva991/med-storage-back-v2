@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ExamTypeModule } from './modules/exam-type/exam-type.module';
 import { ImageTypeModule } from './modules/image-type/image-type.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DatabaseModule } from './modules/database/database.module';
     ExamTypeModule,
     ImageTypeModule,
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

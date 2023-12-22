@@ -33,11 +33,15 @@ export class UserService {
       const hash = await bcrypt.hash(password, salt);
       data['password'] = hash;
 
+      // cria um novo id para o usuário
+      data['_id'] = new Types.ObjectId();
+
       // cria o novo usuário e salva ele no banco de dados
-      const user = new this.userModel(data);
-      return await user.save();
+      const user = (await new this.userModel(data).save()).toObject();
+      delete user['password'];
+      return user;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -49,7 +53,7 @@ export class UserService {
         .findById(data.solicitationId)
         .exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     // verifica se a solicitação existe
@@ -72,7 +76,9 @@ export class UserService {
 
     try {
       // cria o novo usuário e salva ele no banco de dados
-      const user = new this.userModel(solicitation.data);
+      const user = (
+        await new this.userModel(solicitation.data).save()
+      ).toObject();
 
       if (user) {
         // Altera status da solicitação
@@ -86,9 +92,10 @@ export class UserService {
         );
       }
 
-      return await user.save();
+      delete user['password'];
+      return user;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -96,7 +103,7 @@ export class UserService {
     try {
       return await this.userModel.find({}, { password: 0 }).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -107,20 +114,15 @@ export class UserService {
     try {
       return await this.userModel.findById(id, { password: false }).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
   async findOneByEmail(email: string) {
-    // verifica se o email existe
-    await this.emailAlreadyExists(email);
-
     try {
-      return await this.userModel
-        .findOne({ email }, { password: false })
-        .exec();
+      return await this.userModel.findOne({ email }).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -132,7 +134,7 @@ export class UserService {
     try {
       user = await this.userModel.findById(id);
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     // verifica se o email já está cadastrado
@@ -157,7 +159,7 @@ export class UserService {
       delete updatedUser['password'];
       return updatedUser;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -171,7 +173,7 @@ export class UserService {
       delete user['password'];
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -180,12 +182,26 @@ export class UserService {
     try {
       user = await this.userModel.exists({ _id: id });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     // se o usuário não existir, lança uma exceção
     if (!user) {
-      throw new NotFoundException('Solicitação não encontrada');
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+  }
+
+  async emailExists(email: string) {
+    let user = null;
+    try {
+      user = await this.userModel.exists({ email });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    // se o email não existir, lança uma exceção
+    if (!user) {
+      throw new NotFoundException('Email não encontrado.');
     }
   }
 
@@ -194,12 +210,12 @@ export class UserService {
     try {
       user = await this.userModel.exists({ email });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     // se o email já estiver cadastrado, lança uma exceção
     if (user) {
-      throw new BadRequestException('Email já cadastrado');
+      throw new BadRequestException('Email já cadastrado.');
     }
   }
 }

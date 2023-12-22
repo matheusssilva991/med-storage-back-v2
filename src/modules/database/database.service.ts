@@ -31,7 +31,7 @@ export class DatabaseService {
       const database = new this.databaseModel(data);
       return await database.save();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -39,7 +39,7 @@ export class DatabaseService {
     try {
       return await this.databaseModel.find().exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -50,7 +50,7 @@ export class DatabaseService {
     try {
       return await this.databaseModel.findById(id).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -59,7 +59,7 @@ export class DatabaseService {
     try {
       database = await this.databaseModel.findById(id);
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!database) {
@@ -79,7 +79,7 @@ export class DatabaseService {
         .findByIdAndUpdate(id, { $set: data }, { new: true })
         .exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -90,7 +90,7 @@ export class DatabaseService {
     try {
       return await this.databaseModel.findByIdAndDelete(id).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -99,7 +99,7 @@ export class DatabaseService {
     try {
       database = await this.databaseModel.exists({ _id: id });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!database) {
@@ -114,7 +114,7 @@ export class DatabaseService {
         name: { $regex: new RegExp(`^${name}$`) },
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (database) {

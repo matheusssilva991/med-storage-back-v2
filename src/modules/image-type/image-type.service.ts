@@ -24,7 +24,7 @@ export class ImageTypeService {
       const imageType = new this.imageTypeModel(data);
       return await imageType.save();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -32,7 +32,7 @@ export class ImageTypeService {
     try {
       return await this.imageTypeModel.find().exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -43,7 +43,7 @@ export class ImageTypeService {
     try {
       return await this.imageTypeModel.findById(id).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -54,7 +54,7 @@ export class ImageTypeService {
         .findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } })
         .exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -63,7 +63,7 @@ export class ImageTypeService {
     try {
       imageType = await this.imageTypeModel.findById(id);
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!imageType) {
@@ -80,7 +80,7 @@ export class ImageTypeService {
         .findByIdAndUpdate(id, { $set: data }, { new: true })
         .exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -91,7 +91,7 @@ export class ImageTypeService {
     try {
       return await this.imageTypeModel.findByIdAndDelete(id).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -100,7 +100,7 @@ export class ImageTypeService {
     try {
       imageType = await this.imageTypeModel.exists({ _id: id });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!imageType) {
@@ -113,7 +113,7 @@ export class ImageTypeService {
     try {
       imageType = await this.imageTypeModel.exists({ name });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!imageType) {
@@ -129,7 +129,7 @@ export class ImageTypeService {
         name: { $regex: new RegExp(`^${name}$`) },
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (imageType) {

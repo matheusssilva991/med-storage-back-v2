@@ -109,7 +109,7 @@ export class SolicitationService {
       }
       return solicitation.toObject();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -129,7 +129,7 @@ export class SolicitationService {
         return solicitation.toObject();
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -150,7 +150,7 @@ export class SolicitationService {
 
       return solicitation.toObject();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -172,7 +172,7 @@ export class SolicitationService {
       }
       return solicitation.toObject();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -195,7 +195,7 @@ export class SolicitationService {
 
       return solicitation.toObject();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -204,7 +204,7 @@ export class SolicitationService {
     try {
       solicitation = await this.solicitationModel.exists({ _id: id });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (!solicitation) {
@@ -220,7 +220,7 @@ export class SolicitationService {
         'data.email': email,
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (solicitation) {
@@ -238,7 +238,7 @@ export class SolicitationService {
         'data.name': name,
       });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     if (solicitation) {
