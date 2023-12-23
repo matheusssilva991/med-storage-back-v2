@@ -51,7 +51,7 @@ export class UserController {
     const user = req.user as UserHeader;
 
     // Se o usuário não for admin e não for o perfil dele, não permitir visualizar o perfil
-    if (user._id !== +id && user.role === UserRole.User) {
+    if (user._id.equals(id) && user.role === UserRole.User) {
       throw new UnauthorizedException({
         description: 'Você não tem permissão para visualizar este perfil..',
       });
@@ -70,7 +70,7 @@ export class UserController {
     const user = req.user as UserHeader;
 
     // Se o usuário não for admin e não for o perfil dele, não permitir alterar o perfil
-    if (user._id !== +id && user.role === UserRole.User) {
+    if (user._id.equals(id) && user.role === UserRole.User) {
       throw new UnauthorizedException({
         description: 'Você não tem permissão para atualizar este perfil..',
       });
