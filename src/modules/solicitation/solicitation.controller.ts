@@ -1,5 +1,17 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Types } from 'mongoose';
+import { Roles } from 'src/decorators/role.decorator';
+import { UserRole } from 'src/enum/userRole.enum';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { RolesGuard } from 'src/guards/role.guard';
 import { ParamID } from '../../decorators/params-id.decorator';
 import { CreateSolicitationDTO } from './dto/create-solicitation.dto';
 import { UpdateSolicitationDTO } from './dto/update-solicitation.dto';
@@ -15,16 +27,22 @@ export class SolicitationController {
   }
 
   @Get('solicitations')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
   async findAll() {
     return this.solicitationService.findAll();
   }
 
   @Get('solicitation/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
   async findOne(@ParamID() id: Types.ObjectId) {
     return this.solicitationService.findOne(id);
   }
 
   @Patch('solicitation/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
   async update(
     @ParamID() id: Types.ObjectId,
     @Body() data: UpdateSolicitationDTO,
@@ -33,6 +51,8 @@ export class SolicitationController {
   }
 
   @Delete('solicitation/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
   async remove(@ParamID() id: Types.ObjectId) {
     return this.solicitationService.remove(id);
   }

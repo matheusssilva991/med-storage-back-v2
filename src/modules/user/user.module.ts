@@ -5,6 +5,7 @@ import { UserSchema } from './schema/user.schema';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { SolicitationModule } from '../solicitation/solicitation.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SolicitationModule } from '../solicitation/solicitation.module';
       { name: 'solicitation', schema: SolicitationSchema },
     ]),
     forwardRef(() => SolicitationModule),
+    forwardRef(() => AuthModule),
   ],
   providers: [UserService],
   controllers: [UserController],

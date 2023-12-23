@@ -33,9 +33,6 @@ export class UserService {
       const hash = await bcrypt.hash(password, salt);
       data['password'] = hash;
 
-      // cria um novo id para o usuário
-      data['_id'] = new Types.ObjectId();
-
       // cria o novo usuário e salva ele no banco de dados
       const user = (await new this.userModel(data).save()).toObject();
       delete user['password'];

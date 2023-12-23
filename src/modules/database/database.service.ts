@@ -4,13 +4,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Types, Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { ExamTypeService } from '../exam-type/exam-type.service';
+import { ImageTypeService } from '../image-type/image-type.service';
 import { CreateDatabaseDTO } from './dto/create-database.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
-import { InjectModel } from '@nestjs/mongoose';
 import { Database } from './schema/database.entity';
-import { ImageTypeService } from '../image-type/image-type.service';
-import { ExamTypeService } from '../exam-type/exam-type.service';
 
 @Injectable()
 export class DatabaseService {
