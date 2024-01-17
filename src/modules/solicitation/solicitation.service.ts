@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
@@ -13,13 +12,13 @@ import { Model, Types } from 'mongoose';
 import { SolicitationStatus } from '../../enum/solicitationStatus.enum';
 import { SolicitationType } from '../../enum/solicitationType.enum';
 import { DatabaseService } from '../database/database.service';
-import { CreateDatabaseDTO } from '../database/dto/create-database.dto';
+import { CreateDatabaseDto } from '../database/dto/create-database.dto';
 import { ExamTypeService } from '../exam-type/exam-type.service';
 import { ImageTypeService } from '../image-type/image-type.service';
-import { CreateUserDTO } from '../user/dto/create-user.dto';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
-import { CreateSolicitationDTO } from './dto/create-solicitation.dto';
-import { UpdateSolicitationDTO } from './dto/update-solicitation.dto';
+import { CreateSolicitationDto } from './dto/create-solicitation.dto';
+import { UpdateSolicitationDto } from './dto/update-solicitation.dto';
 import { Solicitation } from './schema/solicitation.schema';
 
 @Injectable()
@@ -33,13 +32,13 @@ export class SolicitationService {
     private readonly examTypeService: ExamTypeService,
   ) {}
 
-  async create(data: CreateSolicitationDTO) {
-    let dto: CreateUserDTO | CreateDatabaseDTO;
+  async create(crateSolicitationDto: CreateSolicitationDto) {
+    let dto: CreateUserDto | CreateDatabaseDto;
 
     // Verifica se o tipo da solicitação é de novo usuário
-    if (data.type === SolicitationType.NewUser) {
-      dto = new CreateUserDTO();
-      Object.assign(dto, data.data);
+    if (crateSolicitationDto.type === SolicitationType.NewUser) {
+      dto = new CreateUserDto();
+      Object.assign(dto, crateSolicitationDto.data);
 
       const errors = await validate(dto);
       if (errors.length > 0) {
@@ -51,23 +50,25 @@ export class SolicitationService {
         );
       }
 
-      // Cripitografar a senha do usuário se o tipo da solicitação for NewUser
-      const { password } = data.data as CreateUserDTO;
-
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(password, salt);
-      data.data['password'] = hash;
-
       // Verifica se já existe usuário com esse email
-      await this.userService.emailAlreadyExists(data.data['email']);
+      await this.userService.emailAlreadyExists(
+        crateSolicitationDto.data['email'],
+      );
 
       // Verifica se já existe solicitação de cadastro com esse email
-      await this.solicitationUserEmailAlreadyExists(data.data['email']);
+      await this.solicitationEmailAlreadyExists(
+        crateSolicitationDto.data['email'],
+      );
+
+      // Cripitografar a senha do usuário se o tipo da solicitação for NewUser
+      const { password } = crateSolicitationDto.data as CreateUserDto;
+      const salt = await bcrypt.genSalt(10);
+      crateSolicitationDto.data['password'] = await bcrypt.hash(password, salt);
 
       // Verifica se o tipo da solicitação é de novo banco de dados
-    } else if (data.type === SolicitationType.NewDatabase) {
-      dto = new CreateDatabaseDTO();
-      Object.assign(dto, data.data);
+    } else if (crateSolicitationDto.type === SolicitationType.NewDatabase) {
+      dto = new CreateDatabaseDto();
+      Object.assign(dto, crateSolicitationDto.data);
 
       const errors = await validate(dto);
       if (errors.length > 0) {
@@ -80,68 +81,50 @@ export class SolicitationService {
       }
 
       // Verifica se já existe banco de dados com esse nome
-      await this.databaseService.databaseAlreadyExists(data.data['name']);
+      await this.databaseService.databaseAlreadyExists(
+        crateSolicitationDto.data['name'],
+      );
 
       // Verifica se já existe solicitação de banco de dados com esse nome
-      await this.solicitationDatabaseAlreadyExists(data.data['name']);
+      await this.solicitationDatabaseAlreadyExists(
+        crateSolicitationDto.data['name'],
+      );
 
       // Verifica se o tipo de imagem e o tipo de exame existem
-      await this.imageTypeService.imageTypeExistsByName(data.data['imageType']);
-      await this.examTypeService.examTypeExistsByName(data.data['examType']);
+      await this.imageTypeService.findByName(
+        crateSolicitationDto.data['imageType'],
+      );
+      await this.examTypeService.findByName(
+        crateSolicitationDto.data['examType'],
+      );
     }
 
     // Definir status como Pending
-    data['status'] = SolicitationStatus.Pending;
+    crateSolicitationDto['status'] = SolicitationStatus.Pending;
 
     // Definir data da solicitação como agora
-    data['solicitationDate'] = new Date();
+    crateSolicitationDto['solicitationDate'] = new Date();
 
-    try {
-      // Cria a nova solicitação e salva ela no banco de dados
-      const solicitation = new this.solicitationModel(data);
-      await solicitation.save();
+    // Cria a nova solicitação e salva ela no banco de dados
+    const solicitation = new this.solicitationModel(crateSolicitationDto);
+    await solicitation.save();
 
-      // Deleta a senha do usuário da resposta se o tipo da solicitação for NewUser
-      if (data.type === SolicitationType.NewUser) {
-        const rest = solicitation.toObject();
-        delete rest.data['password'];
-        return rest;
-      }
-      return solicitation.toObject();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    // Deleta a senha do usuário da resposta se o tipo da solicitação for NewUser
+    if (crateSolicitationDto.type === SolicitationType.NewUser) {
+      const rest = solicitation.toObject();
+      delete rest.data['password'];
+      return rest;
     }
+
+    return solicitation.toObject();
   }
 
   async findAll() {
-    try {
-      // Busca todas as solicitações no banco de dados
-      const solicitations = await this.solicitationModel.find().exec();
+    // Busca todas as solicitações no banco de dados
+    const solicitations = await this.solicitationModel.find().exec();
 
-      // Retorna todas as solicitações sem as senhas dos usuários
-      return solicitations.map((solicitation) => {
-        if (solicitation.type === SolicitationType.NewUser) {
-          const rest = solicitation.toObject();
-          delete rest.data['password'];
-          return rest;
-        }
-
-        return solicitation.toObject();
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findOne(id: Types.ObjectId) {
-    // Verifica se a solicitação existe
-    await this.solicitationExists(id);
-
-    try {
-      // Busca a solicitação no banco de dados
-      const solicitation = await this.solicitationModel.findById(id).exec();
-
-      // Retorna a solicitação sem a senha do usuário
+    // Retorna todas as solicitações sem as senhas dos usuários
+    return solicitations.map((solicitation) => {
       if (solicitation.type === SolicitationType.NewUser) {
         const rest = solicitation.toObject();
         delete rest.data['password'];
@@ -149,79 +132,70 @@ export class SolicitationService {
       }
 
       return solicitation.toObject();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    });
   }
 
-  async update(id: Types.ObjectId, data: UpdateSolicitationDTO) {
+  async findOne(id: Types.ObjectId) {
+    // Busca a solicitação no banco de dados
+    const solicitation = await this.solicitationModel.findById(id).exec();
+
     // Verifica se a solicitação existe
-    await this.solicitationExists(id);
-
-    try {
-      // Atualiza a solicitação no banco de dados
-      const solicitation = await this.solicitationModel
-        .findByIdAndUpdate({ _id: id }, data, { new: true })
-        .exec();
-
-      // Retorna a solicitação sem a senha do usuário se o tipo da solicitação for NewUser
-      if (solicitation.type == SolicitationType.NewUser) {
-        const rest = solicitation.toObject();
-        delete rest['data']['password'];
-        return rest;
-      }
-      return solicitation.toObject();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async remove(id: Types.ObjectId) {
-    // Verifica se a solicitação existe
-    await this.solicitationExists(id);
-
-    try {
-      // Deleta a solicitação do banco de dados
-      const solicitation = await this.solicitationModel
-        .findByIdAndDelete({ _id: id }, { new: true })
-        .exec();
-
-      // Retorna a solicitação sem a senha do usuário se o tipo da solicitação for NewUser
-      if (solicitation.type == SolicitationType.NewUser) {
-        const rest = solicitation.toObject();
-        delete rest['data']['password'];
-        return rest;
-      }
-
-      return solicitation.toObject();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async solicitationExists(id: Types.ObjectId) {
-    let solicitation = null;
-    try {
-      solicitation = await this.solicitationModel.exists({ _id: id });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-
     if (!solicitation) {
       throw new NotFoundException('Solicitação não encontrada.');
     }
+
+    // Retorna a solicitação sem a senha do usuário
+    if (solicitation.type === SolicitationType.NewUser) {
+      const rest = solicitation.toObject();
+      delete rest.data['password'];
+      return rest;
+    }
+
+    return solicitation.toObject();
   }
 
-  async solicitationUserEmailAlreadyExists(email: string) {
-    let solicitation = null;
-    try {
-      solicitation = await this.solicitationModel.exists({
-        type: SolicitationType.NewUser,
-        'data.email': email,
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+  async update(
+    id: Types.ObjectId,
+    updateSolicitationDto: UpdateSolicitationDto,
+  ) {
+    // Verifica se a solicitação existe
+    await this.findOne(id);
+
+    // Atualiza a solicitação no banco de dados
+    const solicitation = await this.solicitationModel
+      .findByIdAndUpdate({ _id: id }, updateSolicitationDto, { new: true })
+      .exec();
+
+    // Retorna a solicitação sem a senha do usuário se o tipo da solicitação for NewUser
+    if (solicitation.type == SolicitationType.NewUser) {
+      const rest = solicitation.toObject();
+      delete rest['data']['password'];
+      return rest;
     }
+
+    return solicitation.toObject();
+  }
+
+  async remove(id: Types.ObjectId) {
+    // Deleta a solicitação do banco de dados
+    const solicitation = await this.solicitationModel
+      .findByIdAndDelete(id)
+      .exec();
+
+    // Verifica se a solicitação existe
+    if (!solicitation) {
+      throw new NotFoundException('Solicitação não encontrada.');
+    }
+
+    return solicitation;
+  }
+
+  async solicitationEmailAlreadyExists(email: string) {
+    const solicitation = await this.solicitationModel.exists({
+      type: SolicitationType.NewUser,
+      'data.email': email,
+      status: SolicitationStatus.Pending,
+    });
 
     if (solicitation) {
       throw new BadRequestException(
@@ -231,15 +205,10 @@ export class SolicitationService {
   }
 
   async solicitationDatabaseAlreadyExists(name: string) {
-    let solicitation = null;
-    try {
-      solicitation = await this.solicitationModel.exists({
-        type: SolicitationType.NewDatabase,
-        'data.name': name,
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const solicitation = await this.solicitationModel.exists({
+      type: SolicitationType.NewDatabase,
+      'data.name': name,
+    });
 
     if (solicitation) {
       throw new BadRequestException(

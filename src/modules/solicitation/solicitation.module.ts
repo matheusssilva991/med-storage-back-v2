@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
 import { ExamTypeModule } from '../exam-type/exam-type.module';
 import { ImageTypeModule } from '../image-type/image-type.module';
@@ -17,6 +18,7 @@ import { SolicitationService } from './solicitation.service';
     DatabaseModule,
     ImageTypeModule,
     ExamTypeModule,
+    AuthModule,
   ],
   providers: [SolicitationService],
   controllers: [SolicitationController],

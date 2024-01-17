@@ -1,14 +1,13 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ExamTypeService } from '../exam-type/exam-type.service';
 import { ImageTypeService } from '../image-type/image-type.service';
-import { CreateDatabaseDTO } from './dto/create-database.dto';
+import { CreateDatabaseDto } from './dto/create-database.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
 import { Database } from './schema/database.entity';
 
@@ -20,102 +19,63 @@ export class DatabaseService {
     private readonly examTypeService: ExamTypeService,
   ) {}
 
-  async create(data: CreateDatabaseDTO) {
+  async create(createDatabaseDto: CreateDatabaseDto) {
     // verifica se o banco de imagens já existe
-    await this.databaseAlreadyExists(data.name);
+    await this.databaseAlreadyExists(createDatabaseDto.name);
 
-    await this.checkExamType(data);
-    await this.checkImageType(data);
+    await this.checkExamType(createDatabaseDto);
+    await this.checkImageType(createDatabaseDto);
 
-    try {
-      const database = new this.databaseModel(data);
-      return await database.save();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const database = new this.databaseModel(createDatabaseDto);
+    return await database.save();
   }
 
   async findAll() {
-    try {
-      return await this.databaseModel.find().exec();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    return await this.databaseModel.find().exec();
   }
 
   async findOne(id: Types.ObjectId) {
     // verifica se o tipo de exame existe
-    await this.databaseExists(id);
-
-    try {
-      return await this.databaseModel.findById(id).exec();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async update(id: Types.ObjectId, data: UpdateDatabaseDto) {
-    let database = null;
-    try {
-      database = await this.databaseModel.findById(id);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const database = await this.databaseModel.findById(id).exec();
 
     if (!database) {
       throw new NotFoundException('Banco de imagens não encontrado.');
     }
 
+    return database;
+  }
+
+  async update(id: Types.ObjectId, updateDatabaseDto: UpdateDatabaseDto) {
+    const database = await this.findOne(id);
+
     // verifica se o banco de imagens já existe
-    if (database.name !== data.name) {
-      await this.databaseAlreadyExists(data.name);
+    if (database.name !== updateDatabaseDto.name) {
+      await this.databaseAlreadyExists(updateDatabaseDto.name);
     }
 
-    await this.checkExamType(data);
-    await this.checkImageType(data);
+    await this.checkExamType(updateDatabaseDto);
+    await this.checkImageType(updateDatabaseDto);
 
-    try {
-      return await this.databaseModel
-        .findByIdAndUpdate(id, { $set: data }, { new: true })
-        .exec();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    return await this.databaseModel
+      .findByIdAndUpdate(id, { $set: updateDatabaseDto }, { new: true })
+      .exec();
   }
 
   async remove(id: Types.ObjectId) {
     // verifica se o banco de imagens existe
-    await this.databaseExists(id);
-
-    try {
-      return await this.databaseModel.findByIdAndDelete(id).exec();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async databaseExists(id: Types.ObjectId) {
-    let database = null;
-    try {
-      database = await this.databaseModel.exists({ _id: id });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const database = await this.databaseModel.findByIdAndDelete(id).exec();
 
     if (!database) {
       throw new NotFoundException('Banco de imagens não encontrado.');
     }
+
+    return database;
   }
 
   async databaseAlreadyExists(name: string) {
-    let database = null;
-    try {
-      database = await this.databaseModel.exists({
-        name: { $regex: new RegExp(`^${name}$`) },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const database = await this.databaseModel.exists({
+      name: { $regex: new RegExp(`^${name}$`) },
+    });
 
     if (database) {
       throw new BadRequestException(
@@ -128,10 +88,6 @@ export class DatabaseService {
     if (data.examType) {
       const examType = await this.examTypeService.findByName(data.examType);
 
-      if (!examType) {
-        throw new BadRequestException('Tipo de exame não existe.');
-      }
-
       data.examType = examType.name;
     }
   }
@@ -139,10 +95,6 @@ export class DatabaseService {
   async checkImageType(data: UpdateDatabaseDto) {
     if (data.imageType) {
       const imageType = await this.imageTypeService.findByName(data.imageType);
-
-      if (!imageType) {
-        throw new BadRequestException('Tipo de imagem não existe.');
-      }
 
       data.imageType = imageType.name;
     }

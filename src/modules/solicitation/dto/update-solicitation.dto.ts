@@ -1,7 +1,7 @@
 import { IsEmpty, IsEnum } from 'class-validator';
 import { SolicitationStatus } from '../../../enum/solicitationStatus.enum';
 
-export class UpdateSolicitationDTO {
+export class UpdateSolicitationDto {
   @IsEmpty()
   type: SolicitationStatus;
 

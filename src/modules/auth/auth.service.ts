@@ -17,14 +17,11 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Email e/ou senha incorreta');
-    }
 
     if (await bcrypt.compare(password, user.password)) {
       return user;
     }
-    throw new UnauthorizedException('Email e/ou senha incorreta');
+    throw new UnauthorizedException('Senha incorreta.');
   }
 
   async createToken(user: User) {

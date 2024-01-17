@@ -5,7 +5,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-export class AuthLoginDTO {
+export class AuthLoginDto {
   @IsNotEmpty({ message: 'Email é obrigatório.' })
   @IsEmail({}, { message: 'Email inválido.' })
   email: string;

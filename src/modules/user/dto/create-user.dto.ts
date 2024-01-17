@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { UserRole } from '../../../enum/userRole.enum';
 
-export class CreateUserDTO {
+export class CreateUserDto {
   @IsString({ message: 'O nome deve ser uma string.' })
   @IsNotEmpty({ message: 'O nome não pode ser vazio.' })
   name: string;

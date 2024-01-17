@@ -13,8 +13,8 @@ import { UserRole } from 'src/enum/userRole.enum';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { ParamID } from '../../decorators/params-id.decorator';
-import { CreateSolicitationDTO } from './dto/create-solicitation.dto';
-import { UpdateSolicitationDTO } from './dto/update-solicitation.dto';
+import { CreateSolicitationDto } from './dto/create-solicitation.dto';
+import { UpdateSolicitationDto } from './dto/update-solicitation.dto';
 import { SolicitationService } from './solicitation.service';
 
 @Controller('api')
@@ -22,8 +22,8 @@ export class SolicitationController {
   constructor(private readonly solicitationService: SolicitationService) {}
 
   @Post('solicitation')
-  async create(@Body() data: CreateSolicitationDTO) {
-    return this.solicitationService.create(data);
+  async create(@Body() createSolicitationDto: CreateSolicitationDto) {
+    return this.solicitationService.create(createSolicitationDto);
   }
 
   @Get('solicitations')
@@ -45,9 +45,9 @@ export class SolicitationController {
   @Roles(UserRole.Admin)
   async update(
     @ParamID() id: Types.ObjectId,
-    @Body() data: UpdateSolicitationDTO,
+    @Body() updateSolicitationDto: UpdateSolicitationDto,
   ) {
-    return this.solicitationService.update(id, data);
+    return this.solicitationService.update(id, updateSolicitationDto);
   }
 
   @Delete('solicitation/:id')

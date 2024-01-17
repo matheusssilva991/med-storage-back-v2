@@ -13,8 +13,8 @@ import { Roles } from 'src/decorators/role.decorator';
 import { UserRole } from 'src/enum/userRole.enum';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
-import { CreateExamTypeDTO } from './dto/create-exam-type.dto';
-import { UpdateExamTypeDTO } from './dto/update-exam-type.dto';
+import { CreateExamTypeDto } from './dto/create-exam-type.dto';
+import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
 import { ExamTypeService } from './exam-type.service';
 
 @Controller('api')
@@ -24,8 +24,8 @@ export class ExamTypeController {
 
   @Post('exam-type')
   @Roles(UserRole.Admin)
-  async create(@Body() data: CreateExamTypeDTO) {
-    return await this.examTypeService.create(data);
+  async create(@Body() createExamTypeDto: CreateExamTypeDto) {
+    return await this.examTypeService.create(createExamTypeDto);
   }
 
   @Get('exam-types')
@@ -42,8 +42,11 @@ export class ExamTypeController {
 
   @Patch('exam-type/:id')
   @Roles(UserRole.Admin)
-  async update(@ParamID() id: Types.ObjectId, @Body() data: UpdateExamTypeDTO) {
-    return await this.examTypeService.update(id, data);
+  async update(
+    @ParamID() id: Types.ObjectId,
+    @Body() updateExamTypeDto: UpdateExamTypeDto,
+  ) {
+    return await this.examTypeService.update(id, updateExamTypeDto);
   }
 
   @Delete('exam-type/:id')

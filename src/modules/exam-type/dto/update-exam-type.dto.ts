@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateExamTypeDTO } from './create-exam-type.dto';
+import { CreateExamTypeDto } from './create-exam-type.dto';
 
-export class UpdateExamTypeDTO extends PartialType(CreateExamTypeDTO) {}
+export class UpdateExamTypeDto extends PartialType(CreateExamTypeDto) {}

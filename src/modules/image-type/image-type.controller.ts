@@ -13,8 +13,8 @@ import { UserRole } from 'src/enum/userRole.enum';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { ParamID } from '../../decorators/params-id.decorator';
-import { CreateImageTypeDTO } from './dto/create-image-type.dto';
-import { UpdateImageTypeDTO } from './dto/update-image-type.dto';
+import { CreateImageTypeDto } from './dto/create-image-type.dto';
+import { UpdateImageTypeDto } from './dto/update-image-type.dto';
 import { ImageTypeService } from './image-type.service';
 
 @Controller('api')
@@ -24,7 +24,7 @@ export class ImageTypeController {
 
   @Post('image-type')
   @Roles(UserRole.Admin)
-  async create(@Body() createImageTypeDto: CreateImageTypeDTO) {
+  async create(@Body() createImageTypeDto: CreateImageTypeDto) {
     return this.imageTypeService.create(createImageTypeDto);
   }
 
@@ -44,7 +44,7 @@ export class ImageTypeController {
   @Roles(UserRole.Admin)
   async update(
     @ParamID() id: Types.ObjectId,
-    @Body() updateImageTypeDto: UpdateImageTypeDTO,
+    @Body() updateImageTypeDto: UpdateImageTypeDto,
   ) {
     return this.imageTypeService.update(id, updateImageTypeDto);
   }

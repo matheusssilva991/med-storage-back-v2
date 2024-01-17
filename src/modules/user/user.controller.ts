@@ -17,9 +17,9 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { UserHeader } from 'src/types/user-header';
 import { ParamID } from '../../decorators/params-id.decorator';
-import { CreateUserBySolicitationDTO } from './dto/create-user-by-solicitation.dto';
-import { CreateUserDTO } from './dto/create-user.dto';
-import { UpdateUserDTO } from './dto/update-user.dto';
+import { CreateUserBySolicitationDto } from './dto/create-user-by-solicitation.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
 @Controller('api')
@@ -29,14 +29,18 @@ export class UserController {
 
   @Post('user')
   @Roles(UserRole.Admin)
-  async create(@Body() data: CreateUserDTO) {
-    return await this.userService.create(data);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.userService.create(createUserDto);
   }
 
   @Roles(UserRole.Admin)
   @Post('user-by-solicitation')
-  async createBySolicitation(@Body() data: CreateUserBySolicitationDTO) {
-    return await this.userService.createBySolicitation(data);
+  async createBySolicitation(
+    @Body() createUserBySolicitationDto: CreateUserBySolicitationDto,
+  ) {
+    return await this.userService.createBySolicitation(
+      createUserBySolicitationDto,
+    );
   }
 
   @Get('users')
@@ -47,16 +51,7 @@ export class UserController {
 
   @Get('user/:id')
   @Roles(UserRole.Admin, UserRole.User)
-  async findOne(@ParamID() id: Types.ObjectId, @Req() req: Request) {
-    const user = req.user as UserHeader;
-
-    // Se o usuário não for admin e não for o perfil dele, não permitir visualizar o perfil
-    if (user._id.equals(id) && user.role === UserRole.User) {
-      throw new UnauthorizedException({
-        description: 'Você não tem permissão para visualizar este perfil..',
-      });
-    }
-
+  async findOne(@ParamID() id: Types.ObjectId) {
     return await this.userService.findOne(id);
   }
 
@@ -64,24 +59,24 @@ export class UserController {
   @Roles(UserRole.Admin, UserRole.User)
   async update(
     @ParamID() id: Types.ObjectId,
-    @Body() data: UpdateUserDTO,
+    @Body() updateUserDto: UpdateUserDto,
     @Req() req: Request,
   ) {
     const user = req.user as UserHeader;
 
-    // Se o usuário não for admin e não for o perfil dele, não permitir alterar o perfil
-    if (user._id.equals(id) && user.role === UserRole.User) {
-      throw new UnauthorizedException({
-        description: 'Você não tem permissão para atualizar este perfil..',
-      });
-    }
-
-    // Se o usuário for do tipo User, não permitir alterar o role
     if (user.role === UserRole.User) {
-      delete data.role;
+      // Se o usuário for do tipo User, não permitir alterar o role
+      delete updateUserDto.role;
+
+      // Se não for o perfil dele, não permitir alterar o perfil
+      if (!user._id.equals(id)) {
+        throw new UnauthorizedException({
+          description: 'Você não tem permissão para atualizar este perfil..',
+        });
+      }
     }
 
-    return await this.userService.update(id, data);
+    return await this.userService.update(id, updateUserDto);
   }
 
   @Delete('user/:id')
