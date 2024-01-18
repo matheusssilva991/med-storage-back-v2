@@ -9,12 +9,12 @@ import {
 import { UserRole } from '../../../enum/userRole.enum';
 
 export class CreateUserDto {
-  @IsString({ message: 'O nome deve ser uma string.' })
-  @IsNotEmpty({ message: 'O nome não pode ser vazio.' })
+  @IsString({ message: 'Nome deve ser uma string.' })
+  @IsNotEmpty({ message: 'Nome é obrigatório.' })
   name: string;
 
-  @IsEmail({}, { message: 'Email inválido.' })
-  @IsNotEmpty({ message: 'Email é obrigatório.' })
+  @IsEmail({}, { message: 'E-mail inválido.' })
+  @IsNotEmpty({ message: 'E-mail é obrigatório.' })
   email: string;
 
   @IsString({ message: 'Senha deve ser uma string.' })
@@ -25,27 +25,27 @@ export class CreateUserDto {
       minLowercase: 1,
       minUppercase: 1,
     },
-    { message: 'Senha fraca.' },
+    { message: 'Senha é fraca.' },
   )
   password: string;
 
-  @IsString({ message: 'A instituição deve ser uma string.' })
-  @IsNotEmpty({ message: 'A instituição não pode ser vazia.' })
+  @IsString({ message: 'Instituição deve ser uma string.' })
+  @IsNotEmpty({ message: 'Instituição é obrigatória.' })
   institution: string;
 
-  @IsString({ message: 'O país deve ser uma string.' })
-  @IsNotEmpty({ message: 'O país não pode ser vazio.' })
+  @IsString({ message: 'País deve ser uma string.' })
+  @IsNotEmpty({ message: 'País é obrigatório.' })
   country: string;
 
-  @IsString({ message: 'O estado deve ser uma string.' })
-  @IsNotEmpty({ message: 'O estado não pode ser vazio.' })
+  @IsString({ message: 'Cidade deve ser uma string.' })
+  @IsOptional({ message: 'Cidade é opcional.' })
   city: string;
 
-  @IsString({ message: 'O lattes deve ser uma string.' })
-  @IsOptional({ message: 'O link do lattes é opcional.' })
+  @IsString({ message: 'Lattes deve ser uma string.' })
+  @IsOptional({ message: 'Link do lattes é opcional.' })
   lattes: string;
 
-  @IsEnum(UserRole, { message: 'O cargo do usuário é inválido.' })
-  @IsOptional({ message: 'O cargo do usuário é opcional.' })
+  @IsEnum(UserRole, { message: 'Cargo do usuário é inválido.' })
+  @IsOptional({ message: 'Cargo do usuário é opcional.' })
   role: UserRole;
 }

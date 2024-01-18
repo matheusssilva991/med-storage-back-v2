@@ -4,11 +4,11 @@ import { SolicitationType } from '../../../enum/solicitationType.enum';
 import { CreateUserDto } from '../../../modules/user/dto/create-user.dto';
 
 export class CreateSolicitationDto {
-  @IsEnum(SolicitationType, { message: 'O tipo de solicitação é inválido.' })
-  @IsNotEmpty({ message: 'O tipo de solicitação é obrigatório.' })
+  @IsEnum(SolicitationType, { message: 'Tipo de solicitação é inválido.' })
+  @IsNotEmpty({ message: 'Tipo de solicitação é obrigatório.' })
   type: SolicitationType;
 
-  @IsObject({ message: 'Os dados devem ser um objeto.' })
-  @IsNotEmpty({ message: 'Os dados não podem ser vazios.' })
+  @IsObject({ message: 'Dados da solicitação é um objeto.' })
+  @IsNotEmpty({ message: 'Dados da solicitação são obrigatórios.' })
   data: CreateUserDto | CreateDatabaseDto;
 }
