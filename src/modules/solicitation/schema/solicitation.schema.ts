@@ -5,7 +5,7 @@ import { SolicitationType } from '../../../enum/solicitationType.enum';
 
 export type SolicitationDocument = HydratedDocument<Solicitation>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Solicitation {
   @Prop({ required: true })
   type: SolicitationType;

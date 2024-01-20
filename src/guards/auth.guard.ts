@@ -27,7 +27,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       super.canActivate(context);
       return true;
     } catch (err) {
-      console.log(err);
       throw new UnauthorizedException('Token JWT ausente');
     }
   }

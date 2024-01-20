@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -48,4 +49,10 @@ export class CreateUserDto {
   @IsEnum(UserRole, { message: 'Cargo do usuário é inválido.' })
   @IsOptional({ message: 'Cargo do usuário é opcional.' })
   role: UserRole;
+
+  @IsEmpty({ message: 'Data de criação é gerada automaticamente.' })
+  createdAt: Date;
+
+  @IsEmpty({ message: 'Data de atualização é gerada automaticamente.' })
+  updatedAt: Date;
 }

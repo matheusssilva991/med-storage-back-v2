@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export type ExamTypeDocument = HydratedDocument<ImageType>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class ImageType {
   @Prop({ required: true, unique: true })
   name: string;
@@ -11,10 +11,10 @@ export class ImageType {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true, type: Object })
+  @Prop({ required: true, type: Array })
   requiredData: object;
 
-  @Prop({ required: false, type: Object })
+  @Prop({ required: false, type: Array })
   optionalData: object;
 }
 

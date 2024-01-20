@@ -23,20 +23,28 @@ export class DatabaseService {
     // verifica se o banco de imagens já existe
     await this.databaseAlreadyExists(createDatabaseDto.name);
 
-    await this.checkExamType(createDatabaseDto);
-    await this.checkImageType(createDatabaseDto);
+    await this.examTypeService.findOne(createDatabaseDto.examType);
+    await this.imageTypeService.findOne(createDatabaseDto.imageType);
 
     const database = new this.databaseModel(createDatabaseDto);
     return await database.save();
   }
 
   async findAll() {
-    return await this.databaseModel.find().exec();
+    return await this.databaseModel
+      .find()
+      .populate('examType')
+      .populate('imageType')
+      .exec();
   }
 
   async findOne(id: Types.ObjectId) {
     // verifica se o tipo de exame existe
-    const database = await this.databaseModel.findById(id).exec();
+    const database = await this.databaseModel
+      .findById(id)
+      .populate('examType')
+      .populate('imageType')
+      .exec();
 
     if (!database) {
       throw new NotFoundException('Banco de imagens não encontrado.');
@@ -53,8 +61,8 @@ export class DatabaseService {
       await this.databaseAlreadyExists(updateDatabaseDto.name);
     }
 
-    await this.checkExamType(updateDatabaseDto);
-    await this.checkImageType(updateDatabaseDto);
+    await this.examTypeService.findOne(updateDatabaseDto.examType);
+    await this.imageTypeService.findOne(updateDatabaseDto.imageType);
 
     return await this.databaseModel
       .findByIdAndUpdate(id, { $set: updateDatabaseDto }, { new: true })
@@ -81,22 +89,6 @@ export class DatabaseService {
       throw new BadRequestException(
         'Já existe banco de imagens cadastrado com esse nome',
       );
-    }
-  }
-
-  async checkExamType(data: UpdateDatabaseDto) {
-    if (data.examType) {
-      const examType = await this.examTypeService.findByName(data.examType);
-
-      data.examType = examType.name;
-    }
-  }
-
-  async checkImageType(data: UpdateDatabaseDto) {
-    if (data.imageType) {
-      const imageType = await this.imageTypeService.findByName(data.imageType);
-
-      data.imageType = imageType.name;
     }
   }
 }

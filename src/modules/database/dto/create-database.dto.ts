@@ -1,19 +1,21 @@
 import {
   IsArray,
   IsEmpty,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateDatabaseDto {
   @IsString({ message: 'Nome do banco de imagens deve ser uma string.' })
   @IsNotEmpty({ message: 'Nome do banco de imagens é obrigatório.' })
   name: string;
 
-  @IsString({ message: 'Tipo de exame deve ser uma string.' })
+  @IsMongoId({ message: 'Tipo de exame deve ser um id válido.' })
   @IsNotEmpty({ message: 'Tipo de exame é obrigatório.' })
-  examType: string;
+  examType: Types.ObjectId;
 
   @IsString({ message: 'Descrição deve ser uma string.' })
   @IsNotEmpty({ message: 'Descrição é obrigatória.' })
@@ -23,9 +25,9 @@ export class CreateDatabaseDto {
   @IsNotEmpty({ message: 'Qualidades das imagens é obrigatório.' })
   imageQuality: Array<number>;
 
-  @IsString({ message: 'Tipo de imagem deve ser uma string.' })
+  @IsMongoId({ message: 'Tipo de imagem deve ser um id válido.' })
   @IsNotEmpty({ message: 'Tipo de imagem é obrigatório.' })
-  imageType: string;
+  imageType: Types.ObjectId;
 
   @IsString({ message: 'Url deve ser uma string.' })
   @IsOptional({ message: 'Url é opcional.' })
@@ -35,7 +37,12 @@ export class CreateDatabaseDto {
   @IsOptional({ message: 'Caminho do banco de imagens é opcional.' })
   path: string;
 
-  @IsArray({ message: 'As imagens devem ser um array de objetos.' })
   @IsEmpty({ message: 'As imagens é vazio.' })
   images: Array<object>;
+
+  @IsEmpty({ message: 'Data de criação é gerada automaticamente.' })
+  createdAt: Date;
+
+  @IsEmpty({ message: 'Data de atualização é gerada automaticamente.' })
+  updatedAt: Date;
 }

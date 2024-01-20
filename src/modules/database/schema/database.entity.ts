@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type DatabaseDocument = HydratedDocument<Database>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Database {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ required: true })
-  examType: string;
+  @Prop({ required: true, type: Types.ObjectId, ref: 'examType' })
+  examType: Types.ObjectId;
 
   @Prop({ required: true })
   description: string;
@@ -17,8 +17,8 @@ export class Database {
   @Prop({ required: true })
   imageQuality: Array<number>;
 
-  @Prop({ required: true })
-  imageType: string;
+  @Prop({ required: true, type: Types.ObjectId, ref: 'imageType' })
+  imageType: Types.ObjectId;
 
   @Prop({ required: false, default: '' })
   url: string;

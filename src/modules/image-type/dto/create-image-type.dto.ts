@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateImageTypeDto {
   @IsString({ message: 'Nome do tipo de imagem deve ser uma string.' })
@@ -9,10 +15,17 @@ export class CreateImageTypeDto {
   @IsNotEmpty({ message: 'Descrição é obrigatória.' })
   description: string;
 
-  @IsObject({ message: 'Dados obrigatórios é um objeto.' })
+  @IsArray({ message: 'Dados obrigatórios é um array.' })
   @IsNotEmpty({ message: 'Dados obrigatórios não pode ser vázio.' })
-  requiredData: object;
+  requiredData: Array<string>;
 
-  @IsObject({ message: 'Dados opcionais é um objeto.' })
-  optionalData: object;
+  @IsArray({ message: 'Dados opcionais é um array.' })
+  @IsOptional({ message: 'Dados opcionais é opcional.' })
+  optionalData: Array<string>;
+
+  @IsEmpty({ message: 'Data de criação é gerada automaticamente.' })
+  createdAt: Date;
+
+  @IsEmpty({ message: 'Data de atualização é gerada automaticamente.' })
+  updatedAt: Date;
 }
