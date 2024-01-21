@@ -18,8 +18,8 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { DatabaseService } from './database.service';
 import { CreateDatabaseDto } from './dto/create-database.dto';
-import { UpdateDatabaseDto } from './dto/update-database.dto';
 import { DatabaseFilterDto } from './dto/database-filter.dto';
+import { UpdateDatabaseDto } from './dto/update-database.dto';
 
 @Controller('api')
 @UseGuards(JwtAuthGuard, RolesGuard)

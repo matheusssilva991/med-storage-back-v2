@@ -141,7 +141,8 @@ export class SolicitationService {
     };
 
     // Paginação
-    const skip = page ? (page - 1) * limit : 0;
+    const defaultLimit = limit || 10;
+    const skip = page ? (page - 1) * defaultLimit : 0;
 
     // Ordenação
     let sortObject: string;
