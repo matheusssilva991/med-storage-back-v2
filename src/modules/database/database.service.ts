@@ -8,6 +8,7 @@ import { Model, Types } from 'mongoose';
 import { ExamTypeService } from '../exam-type/exam-type.service';
 import { ImageTypeService } from '../image-type/image-type.service';
 import { CreateDatabaseDto } from './dto/create-database.dto';
+import { DatabaseFilterDto } from './dto/database-filter.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
 import { Database } from './schema/database.entity';
 
@@ -35,6 +36,36 @@ export class DatabaseService {
       .find()
       .populate('examType')
       .populate('imageType')
+      .exec();
+  }
+
+  async findAllWithFilter(query: DatabaseFilterDto) {
+    const { name, examType, imageType, page, limit, sort } = query;
+
+    const filter = {
+      ...(name && { name: { $regex: name, $options: 'i' } }),
+      ...(examType && {
+        'examType.name': { $regex: examType, $options: 'i' },
+      }),
+      ...(imageType && {
+        'imageType.name': { $regex: imageType, $options: 'i' },
+      }),
+    };
+
+    // Paginação
+    const skip = page ? (page - 1) * limit : 0;
+
+    // Ordenação
+    let sortObject: string;
+    try {
+      sortObject = JSON.parse(sort);
+    } catch (error) {
+      sortObject = sort || 'name';
+    }
+
+    return await this.databaseModel
+      .find({ ...filter }, {}, { skip, limit })
+      .sort(sortObject)
       .exec();
   }
 

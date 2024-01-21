@@ -5,9 +5,12 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { Types } from 'mongoose';
@@ -20,6 +23,7 @@ import { ParamID } from '../../decorators/params-id.decorator';
 import { CreateUserBySolicitationDto } from './dto/create-user-by-solicitation.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserFilterDto } from './dto/user-filter.dto';
 import { UserService } from './user.service';
 
 @Controller('api')
@@ -45,7 +49,11 @@ export class UserController {
 
   @Get('users')
   @Roles(UserRole.Admin, UserRole.User)
-  async findAll() {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: UserFilterDto) {
+    if (Object.keys(query).length) {
+      return await this.userService.findAllWithFilter(query);
+    }
     return await this.userService.findAll();
   }
 

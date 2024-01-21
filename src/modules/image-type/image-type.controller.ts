@@ -5,7 +5,10 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Roles } from 'src/decorators/role.decorator';
@@ -16,6 +19,7 @@ import { ParamID } from '../../decorators/params-id.decorator';
 import { CreateImageTypeDto } from './dto/create-image-type.dto';
 import { UpdateImageTypeDto } from './dto/update-image-type.dto';
 import { ImageTypeService } from './image-type.service';
+import { ImageTypeFilterDto } from './dto/image-type-filter.dto';
 
 @Controller('api')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,7 +34,10 @@ export class ImageTypeController {
 
   @Get('image-types')
   @Roles(UserRole.Admin, UserRole.User)
-  async findAll() {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: ImageTypeFilterDto) {
+    if (Object.keys(query).length)
+      return this.imageTypeService.findAllWithFilter(query);
     return this.imageTypeService.findAll();
   }
 

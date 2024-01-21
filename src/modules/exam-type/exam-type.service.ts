@@ -8,6 +8,7 @@ import { Model, Types } from 'mongoose';
 import { CreateExamTypeDto } from './dto/create-exam-type.dto';
 import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
 import { ExamType } from './schema/exam-type.entity';
+import { ExamTypeFilterDto } from './dto/exam-type.filter.dto';
 
 @Injectable()
 export class ExamTypeService {
@@ -25,6 +26,30 @@ export class ExamTypeService {
 
   async findAll() {
     return await this.examTypeModel.find().exec();
+  }
+
+  async findAllWithFilter(query: ExamTypeFilterDto) {
+    const { name, page, limit, sort } = query;
+
+    const filter = {
+      ...(name && { name: { $regex: name, $options: 'i' } }),
+    };
+
+    // Paginação
+    const skip = page ? (page - 1) * limit : 0;
+
+    // Ordenação
+    let sortObject: string;
+    try {
+      sortObject = JSON.parse(sort);
+    } catch (error) {
+      sortObject = sort || 'name';
+    }
+
+    return await this.examTypeModel
+      .find({ ...filter }, {}, { skip, limit })
+      .sort(sortObject)
+      .exec();
   }
 
   async findOne(id: Types.ObjectId) {

@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Exclude } from 'class-transformer';
 import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
@@ -14,6 +15,7 @@ export class User {
   email: string;
 
   @Prop({ required: true })
+  @Exclude()
   password: string;
 
   @Prop({ required: true })
@@ -31,7 +33,7 @@ export class User {
   @Prop({ required: true, default: 'user' })
   role: string;
 
-  constructor(user?: Partial<User>) {
+  /* constructor(user?: Partial<User>) {
     this.name = user?.name;
     this.email = user?.email;
     this.password = user?.password;
@@ -40,6 +42,9 @@ export class User {
     this.city = user?.city;
     this.lattes = user?.lattes;
     this.role = user?.role;
+  } */
+  constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
   }
 }
 

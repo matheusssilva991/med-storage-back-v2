@@ -13,6 +13,7 @@ import { CreateUserBySolicitationDto } from './dto/create-user-by-solicitation.d
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schema/user.schema';
+import { UserFilterDto } from './dto/user-filter.dto';
 
 @Injectable()
 export class UserService {
@@ -82,6 +83,36 @@ export class UserService {
 
   async findAll() {
     return await this.userModel.find({}, { password: 0 }).exec();
+  }
+
+  async findAllWithFilter(query: UserFilterDto) {
+    const { name, institution, country, city, role, page, limit, sort } = query;
+
+    const filter = {
+      ...(name && { name: { $regex: name, $options: 'i' } }),
+      ...(institution && {
+        institution: { $regex: institution, $options: 'i' },
+      }),
+      ...(country && { country: { $regex: country, $options: 'i' } }),
+      ...(city && { city: { $regex: city, $options: 'i' } }),
+      ...(role && { role }),
+    };
+
+    // Paginação
+    const skip = page ? (page - 1) * limit : 0;
+
+    // Ordenação
+    let sortObject: string;
+    try {
+      sortObject = JSON.parse(sort);
+    } catch (error) {
+      sortObject = sort || 'name';
+    }
+
+    return await this.userModel
+      .find(filter, { password: 0 }, { limit, skip })
+      .sort(sortObject)
+      .exec();
   }
 
   async findOne(id: Types.ObjectId) {

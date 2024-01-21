@@ -18,6 +18,7 @@ import { ImageTypeService } from '../image-type/image-type.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { CreateSolicitationDto } from './dto/create-solicitation.dto';
+import { SolicitationFilterDto } from './dto/solicitation-filter.dto';
 import { UpdateSolicitationDto } from './dto/update-solicitation.dto';
 import { Solicitation } from './schema/solicitation.schema';
 
@@ -121,18 +122,43 @@ export class SolicitationService {
 
   async findAll() {
     // Busca todas as solicitações no banco de dados
-    const solicitations = await this.solicitationModel.find().exec();
+    const solicitations = await this.solicitationModel
+      .find()
+      .sort('createdAt')
+      .exec();
 
     // Retorna todas as solicitações sem as senhas dos usuários
-    return solicitations.map((solicitation) => {
-      if (solicitation.type === SolicitationType.NewUser) {
-        const rest = solicitation.toObject();
-        delete rest.data['password'];
-        return rest;
-      }
+    return this.excludeSolicitationsPassword(solicitations);
+  }
 
-      return solicitation.toObject();
-    });
+  async findAllWithFilter(query: SolicitationFilterDto) {
+    const { type, name, status, page, limit, sort } = query;
+
+    const filter = {
+      ...(name && { 'data.name': { $regex: name, $options: 'i' } }),
+      ...(type && { type: { $regex: type, $options: 'i' } }),
+      ...(status && { status: { $regex: status, $options: 'i' } }),
+    };
+
+    // Paginação
+    const skip = page ? (page - 1) * limit : 0;
+
+    // Ordenação
+    let sortObject: string;
+    try {
+      sortObject = JSON.parse(sort);
+    } catch (error) {
+      sortObject = sort || 'createdAt';
+    }
+
+    // Busca as solicitações no banco de dados
+    const solicitations = await this.solicitationModel
+      .find({ ...filter }, {}, { skip, limit })
+      .sort(sortObject)
+      .exec();
+
+    // Retorna as solicitações sem as senhas dos usuários
+    return this.excludeSolicitationsPassword(solicitations);
   }
 
   async findOne(id: Types.ObjectId) {
@@ -145,13 +171,7 @@ export class SolicitationService {
     }
 
     // Retorna a solicitação sem a senha do usuário
-    if (solicitation.type === SolicitationType.NewUser) {
-      const rest = solicitation.toObject();
-      delete rest.data['password'];
-      return rest;
-    }
-
-    return solicitation.toObject();
+    return this.excludeSolicitationsPassword([solicitation]);
   }
 
   async update(
@@ -166,14 +186,8 @@ export class SolicitationService {
       .findByIdAndUpdate({ _id: id }, updateSolicitationDto, { new: true })
       .exec();
 
-    // Retorna a solicitação sem a senha do usuário se o tipo da solicitação for NewUser
-    if (solicitation.type == SolicitationType.NewUser) {
-      const rest = solicitation.toObject();
-      delete rest['data']['password'];
-      return rest;
-    }
-
-    return solicitation.toObject();
+    // Retorna a solicitação sem a senha do usuário
+    return this.excludeSolicitationsPassword([solicitation]);
   }
 
   async remove(id: Types.ObjectId) {
@@ -187,7 +201,7 @@ export class SolicitationService {
       throw new NotFoundException('Solicitação não encontrada.');
     }
 
-    return solicitation;
+    return this.excludeSolicitationsPassword([solicitation]);
   }
 
   async solicitationEmailAlreadyExists(email: string) {
@@ -215,5 +229,17 @@ export class SolicitationService {
         'Já existe solicitação de cadastro de banco de imagens com esse nome',
       );
     }
+  }
+
+  excludeSolicitationsPassword(solicitations: any) {
+    return solicitations.map((solicitation) => {
+      if (solicitation.type === SolicitationType.NewUser) {
+        const rest = solicitation.toObject();
+        delete rest.data['password'];
+        return rest;
+      }
+
+      return solicitation.toObject();
+    });
   }
 }

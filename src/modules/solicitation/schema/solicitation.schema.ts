@@ -10,7 +10,7 @@ export class Solicitation {
   @Prop({ required: true })
   type: SolicitationType;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: SolicitationStatus.Pending })
   status: SolicitationStatus;
 
   @Prop({ required: true, default: Date.now() })

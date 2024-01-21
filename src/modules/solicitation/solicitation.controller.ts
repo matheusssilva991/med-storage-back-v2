@@ -5,7 +5,10 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Roles } from 'src/decorators/role.decorator';
@@ -16,6 +19,7 @@ import { ParamID } from '../../decorators/params-id.decorator';
 import { CreateSolicitationDto } from './dto/create-solicitation.dto';
 import { UpdateSolicitationDto } from './dto/update-solicitation.dto';
 import { SolicitationService } from './solicitation.service';
+import { SolicitationFilterDto } from './dto/solicitation-filter.dto';
 
 @Controller('api')
 export class SolicitationController {
@@ -27,9 +31,13 @@ export class SolicitationController {
   }
 
   @Get('solicitations')
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  async findAll() {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: SolicitationFilterDto) {
+    if (Object.keys(query).length) {
+      return await this.solicitationService.findAllWithFilter(query);
+    }
     return this.solicitationService.findAll();
   }
 

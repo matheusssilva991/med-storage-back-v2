@@ -5,7 +5,10 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ParamID } from 'src/decorators/params-id.decorator';
@@ -16,6 +19,7 @@ import { RolesGuard } from 'src/guards/role.guard';
 import { DatabaseService } from './database.service';
 import { CreateDatabaseDto } from './dto/create-database.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
+import { DatabaseFilterDto } from './dto/database-filter.dto';
 
 @Controller('api')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,7 +34,10 @@ export class DatabaseController {
 
   @Get('databases')
   @Roles(UserRole.Admin, UserRole.User)
-  async findAll() {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: DatabaseFilterDto) {
+    if (Object.keys(query).length)
+      return this.databaseService.findAllWithFilter(query);
     return this.databaseService.findAll();
   }
 

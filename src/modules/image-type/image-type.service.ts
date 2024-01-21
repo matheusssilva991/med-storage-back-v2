@@ -8,6 +8,7 @@ import { Model, Types } from 'mongoose';
 import { CreateImageTypeDto } from './dto/create-image-type.dto';
 import { UpdateImageTypeDto } from './dto/update-image-type.dto';
 import { ImageType } from './schema/image-type.entity';
+import { ImageTypeFilterDto } from './dto/image-type-filter.dto';
 
 @Injectable()
 export class ImageTypeService {
@@ -25,6 +26,30 @@ export class ImageTypeService {
 
   async findAll() {
     return await this.imageTypeModel.find().exec();
+  }
+
+  async findAllWithFilter(query: ImageTypeFilterDto) {
+    const { name, page, limit, sort } = query;
+
+    const filter = {
+      ...(name && { name: { $regex: name, $options: 'i' } }),
+    };
+
+    // Paginação
+    const skip = page ? (page - 1) * limit : 0;
+
+    // Ordenação
+    let sortObject: string;
+    try {
+      sortObject = JSON.parse(sort);
+    } catch (error) {
+      sortObject = sort || 'name';
+    }
+
+    return await this.imageTypeModel
+      .find({ ...filter }, {}, { skip, limit })
+      .sort(sortObject)
+      .exec();
   }
 
   async findOne(id: Types.ObjectId) {

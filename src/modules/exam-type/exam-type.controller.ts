@@ -5,7 +5,10 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ParamID } from 'src/decorators/params-id.decorator';
@@ -16,6 +19,7 @@ import { RolesGuard } from 'src/guards/role.guard';
 import { CreateExamTypeDto } from './dto/create-exam-type.dto';
 import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
 import { ExamTypeService } from './exam-type.service';
+import { ExamTypeFilterDto } from './dto/exam-type.filter.dto';
 
 @Controller('api')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,7 +34,10 @@ export class ExamTypeController {
 
   @Get('exam-types')
   @Roles(UserRole.Admin, UserRole.User)
-  async findAll() {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: ExamTypeFilterDto) {
+    if (Object.keys(query).length)
+      return await this.examTypeService.findAllWithFilter(query);
     return await this.examTypeService.findAll();
   }
 
