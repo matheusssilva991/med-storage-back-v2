@@ -2,15 +2,14 @@ import { IsEmpty, IsEnum, IsNotEmpty, IsObject } from 'class-validator';
 import { CreateDatabaseDto } from 'src/modules/database/dto/create-database.dto';
 import { SolicitationType } from '../../../enum/solicitationType.enum';
 import { CreateUserDto } from '../../../modules/user/dto/create-user.dto';
-import { SolicitationStatus } from 'src/enum/solicitationStatus.enum';
+import { SolicitationStatus } from '../../../enum/solicitationStatus.enum';
 
 export class CreateSolicitationDto {
   @IsEnum(SolicitationType, { message: 'Tipo de solicitação é inválido.' })
   @IsNotEmpty({ message: 'Tipo de solicitação é obrigatório.' })
   type: SolicitationType;
 
-  @IsEnum(SolicitationStatus, { message: 'Status da solicitação é inválido.' })
-  @IsEmpty({ message: 'Status da solicitação é gerado automaticamente.' })
+  @IsEmpty({ message: 'Status é gerado automaticamente.' })
   status: SolicitationStatus;
 
   @IsObject({ message: 'Dados da solicitação é um objeto.' })

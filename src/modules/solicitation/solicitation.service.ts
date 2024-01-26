@@ -33,13 +33,13 @@ export class SolicitationService {
     private readonly examTypeService: ExamTypeService,
   ) {}
 
-  async create(crateSolicitationDto: CreateSolicitationDto) {
+  async create(createSolicitationDto: CreateSolicitationDto) {
     let dto: CreateUserDto | CreateDatabaseDto;
 
     // Verifica se o tipo da solicitação é de novo usuário
-    if (crateSolicitationDto.type === SolicitationType.NewUser) {
+    if (createSolicitationDto.type === SolicitationType.NewUser) {
       dto = new CreateUserDto();
-      Object.assign(dto, crateSolicitationDto.data);
+      Object.assign(dto, createSolicitationDto.data);
 
       const errors = await validate(dto);
       if (errors.length > 0) {
@@ -53,23 +53,26 @@ export class SolicitationService {
 
       // Verifica se já existe usuário com esse email
       await this.userService.emailAlreadyExists(
-        crateSolicitationDto.data['email'],
+        createSolicitationDto.data['email'],
       );
 
       // Verifica se já existe solicitação de cadastro com esse email
       await this.solicitationEmailAlreadyExists(
-        crateSolicitationDto.data['email'],
+        createSolicitationDto.data['email'],
       );
 
       // Cripitografar a senha do usuário se o tipo da solicitação for NewUser
-      const { password } = crateSolicitationDto.data as CreateUserDto;
+      const { password } = createSolicitationDto.data as CreateUserDto;
       const salt = await bcrypt.genSalt(10);
-      crateSolicitationDto.data['password'] = await bcrypt.hash(password, salt);
+      createSolicitationDto.data['password'] = await bcrypt.hash(
+        password,
+        salt,
+      );
 
       // Verifica se o tipo da solicitação é de novo banco de dados
-    } else if (crateSolicitationDto.type === SolicitationType.NewDatabase) {
+    } else if (createSolicitationDto.type === SolicitationType.NewDatabase) {
       dto = new CreateDatabaseDto();
-      Object.assign(dto, crateSolicitationDto.data);
+      Object.assign(dto, createSolicitationDto.data);
 
       const errors = await validate(dto);
       if (errors.length > 0) {
@@ -83,35 +86,35 @@ export class SolicitationService {
 
       // Verifica se já existe banco de dados com esse nome
       await this.databaseService.databaseAlreadyExists(
-        crateSolicitationDto.data['name'],
+        createSolicitationDto.data['name'],
       );
 
       // Verifica se já existe solicitação de banco de dados com esse nome
       await this.solicitationDatabaseAlreadyExists(
-        crateSolicitationDto.data['name'],
+        createSolicitationDto.data['name'],
       );
 
       // Verifica se o tipo de imagem e o tipo de exame existem
       await this.imageTypeService.findByName(
-        crateSolicitationDto.data['imageType'],
+        createSolicitationDto.data['imageType'],
       );
       await this.examTypeService.findByName(
-        crateSolicitationDto.data['examType'],
+        createSolicitationDto.data['examType'],
       );
     }
 
-    // Definir status como Pending
-    crateSolicitationDto['status'] = SolicitationStatus.Pending;
-
     // Definir data da solicitação como agora
-    crateSolicitationDto['solicitationDate'] = new Date();
+    createSolicitationDto['solicitationDate'] = new Date();
+
+    // Definir status da solicitação como pendente
+    createSolicitationDto['status'] = SolicitationStatus.Pending;
 
     // Cria a nova solicitação e salva ela no banco de dados
-    const solicitation = new this.solicitationModel(crateSolicitationDto);
+    const solicitation = new this.solicitationModel(createSolicitationDto);
     await solicitation.save();
 
     // Deleta a senha do usuário da resposta se o tipo da solicitação for NewUser
-    if (crateSolicitationDto.type === SolicitationType.NewUser) {
+    if (createSolicitationDto.type === SolicitationType.NewUser) {
       const rest = solicitation.toObject();
       delete rest.data['password'];
       return rest;
