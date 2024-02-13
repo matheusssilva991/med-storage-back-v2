@@ -55,4 +55,10 @@ export class AuthService {
     const user = await this.validateUser(email, password);
     return await this.createToken(user);
   }
+
+  async me(token: string) {
+    const user = this.jwtService.decode(token);
+    delete user['password'];
+    return await this.userService.findOneByEmail(user.email);
+  }
 }
