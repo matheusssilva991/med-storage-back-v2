@@ -9,7 +9,7 @@ export class Database {
   name: string;
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'examType' })
-  examType: Types.ObjectId;
+  examType: any;
 
   @Prop({ required: true })
   description: string;
@@ -18,7 +18,7 @@ export class Database {
   imageQuality: Array<number>;
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'imageType' })
-  imageType: Types.ObjectId;
+  imageType: any;
 
   @Prop({ required: false, default: '' })
   url: string;

@@ -1,9 +1,20 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsPositive } from 'class-validator';
 
 export class DatabaseFilterDto {
   @IsOptional({ message: 'Nome do banco de imagens é opcional.' })
   name: string;
+
+  @IsOptional({ message: 'Descrição é opcional.' })
+  description: string;
+
+  @IsOptional({ message: 'Qualidade da imagem é opcional.' })
+  @Transform(({ value }) => {
+    const tmpValue = JSON.parse(value);
+    const numericArray = tmpValue.map(Number);
+    return numericArray;
+  })
+  imageQuality: Array<number>;
 
   @IsOptional({ message: 'Nome do tipo de exame é opcional.' })
   examType: string;

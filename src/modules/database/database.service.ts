@@ -40,16 +40,23 @@ export class DatabaseService {
   }
 
   async findAllWithFilter(query: DatabaseFilterDto) {
-    const { name, examType, imageType, page, limit, sort } = query;
+    const {
+      name,
+      imageQuality,
+      examType,
+      description,
+      imageType,
+      page,
+      limit,
+      sort,
+    } = query;
 
     const filter = {
-      ...(name && { name: { $regex: name, $options: 'i' } }),
-      ...(examType && {
-        'examType.name': { $regex: examType, $options: 'i' },
+      ...(name && { name: { $regex: new RegExp(name, 'i') } }),
+      ...(description && {
+        description: { $regex: new RegExp(description, 'i') },
       }),
-      ...(imageType && {
-        'imageType.name': { $regex: imageType, $options: 'i' },
-      }),
+      ...(imageQuality && { imageQuality: { $in: imageQuality } }),
     };
 
     // Paginação
@@ -64,10 +71,24 @@ export class DatabaseService {
       sortObject = sort || 'name';
     }
 
-    return await this.databaseModel
+    const databases = await this.databaseModel
       .find({ ...filter }, {}, { skip, limit })
+      .populate('examType')
+      .populate('imageType')
       .sort(sortObject)
       .exec();
+
+    let filteredDatabases = databases.filter((database) => {
+      const regExp = new RegExp(examType, 'i');
+      return database.examType.name && database.examType.name.match(regExp);
+    });
+
+    filteredDatabases = filteredDatabases.filter((database) => {
+      const regExp = new RegExp(imageType, 'i');
+      return database.imageType.name && database.imageType.name.match(regExp);
+    });
+
+    return filteredDatabases || databases;
   }
 
   async findOne(id: Types.ObjectId) {
