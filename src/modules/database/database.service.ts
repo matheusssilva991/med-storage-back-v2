@@ -36,6 +36,7 @@ export class DatabaseService {
       .find()
       .populate('examType')
       .populate('imageType')
+      .sort('createdAt')
       .exec();
   }
 
@@ -68,7 +69,7 @@ export class DatabaseService {
     try {
       sortObject = JSON.parse(sort);
     } catch (error) {
-      sortObject = sort || 'name';
+      sortObject = sort || 'createdAt';
     }
 
     const databases = await this.databaseModel
