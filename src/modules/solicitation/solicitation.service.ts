@@ -95,10 +95,10 @@ export class SolicitationService {
       );
 
       // Verifica se o tipo de imagem e o tipo de exame existem
-      await this.imageTypeService.findByName(
+      await this.imageTypeService.findOne(
         createSolicitationDto.data['imageType'],
       );
-      await this.examTypeService.findByName(
+      await this.examTypeService.findOne(
         createSolicitationDto.data['examType'],
       );
     }
