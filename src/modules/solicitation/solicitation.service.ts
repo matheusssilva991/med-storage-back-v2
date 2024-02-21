@@ -103,9 +103,6 @@ export class SolicitationService {
       );
     }
 
-    // Definir data da solicitação como agora
-    createSolicitationDto['solicitationDate'] = new Date();
-
     // Definir status da solicitação como pendente
     createSolicitationDto['status'] = SolicitationStatus.Pending;
 
@@ -175,7 +172,7 @@ export class SolicitationService {
     }
 
     // Retorna a solicitação sem a senha do usuário
-    return this.excludeSolicitationsPassword([solicitation]);
+    return this.excludeSolicitationsPassword([solicitation])[0];
   }
 
   async update(

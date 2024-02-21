@@ -13,9 +13,6 @@ export class Solicitation {
   @Prop({ required: true, default: SolicitationStatus.Pending })
   status: SolicitationStatus;
 
-  @Prop({ required: true, default: Date.now() })
-  solicitationDate: Date;
-
   @Prop({ required: true, type: Object })
   data: object;
 }
