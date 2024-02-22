@@ -124,7 +124,7 @@ export class SolicitationService {
     // Busca todas as solicitações no banco de dados
     const solicitations = await this.solicitationModel
       .find()
-      .sort('createdAt')
+      .sort({ createdAt: -1 })
       .exec();
 
     // Retorna todas as solicitações sem as senhas dos usuários
@@ -145,11 +145,11 @@ export class SolicitationService {
     const skip = page ? (page - 1) * defaultLimit : 0;
 
     // Ordenação
-    let sortObject: string;
+    let sortObject: any;
     try {
       sortObject = JSON.parse(sort);
     } catch (error) {
-      sortObject = sort || 'createdAt';
+      sortObject = sort || { createdAt: -1 };
     }
 
     // Busca as solicitações no banco de dados

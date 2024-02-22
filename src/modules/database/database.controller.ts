@@ -17,6 +17,7 @@ import { UserRole } from 'src/enum/userRole.enum';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { DatabaseService } from './database.service';
+import { CreateDatabaseBySolicitationDto } from './dto/create-database-by-solicitation.dto';
 import { CreateDatabaseDto } from './dto/create-database.dto';
 import { DatabaseFilterDto } from './dto/database-filter.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
@@ -30,6 +31,16 @@ export class DatabaseController {
   @Roles(UserRole.Admin)
   async create(@Body() createDatabaseDto: CreateDatabaseDto) {
     return this.databaseService.create(createDatabaseDto);
+  }
+
+  @Post('database-by-solicitation')
+  @Roles(UserRole.Admin)
+  async createBySolicitation(
+    @Body() createDatabaseBySolicitationDto: CreateDatabaseBySolicitationDto,
+  ) {
+    return this.databaseService.createBySolicitation(
+      createDatabaseBySolicitationDto,
+    );
   }
 
   @Get('databases')

@@ -5,8 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { SolicitationStatus } from '../../enum/solicitationStatus.enum';
+import { SolicitationType } from '../../enum/solicitationType.enum';
 import { ExamTypeService } from '../exam-type/exam-type.service';
 import { ImageTypeService } from '../image-type/image-type.service';
+import { Solicitation } from '../solicitation/schema/solicitation.schema';
+import { CreateDatabaseBySolicitationDto } from './dto/create-database-by-solicitation.dto';
 import { CreateDatabaseDto } from './dto/create-database.dto';
 import { DatabaseFilterDto } from './dto/database-filter.dto';
 import { UpdateDatabaseDto } from './dto/update-database.dto';
@@ -16,6 +20,7 @@ import { Database } from './schema/database.entity';
 export class DatabaseService {
   constructor(
     @InjectModel('database') private readonly databaseModel: Model<Database>,
+    @InjectModel('solicitation') private solicitationModel: Model<Solicitation>,
     private readonly imageTypeService: ImageTypeService,
     private readonly examTypeService: ExamTypeService,
   ) {}
@@ -29,6 +34,52 @@ export class DatabaseService {
 
     const database = new this.databaseModel(createDatabaseDto);
     return await database.save();
+  }
+
+  async createBySolicitation(
+    createDatabaseBySolicitationDto: CreateDatabaseBySolicitationDto,
+  ) {
+    const solicitation = await this.solicitationModel
+      .findById(createDatabaseBySolicitationDto.solicitationId)
+      .exec();
+    const databaseData: any = solicitation.data;
+
+    // verifica se a solicitação existe
+    if (!solicitation) {
+      throw new NotFoundException('Solicitação não encontrada.');
+    }
+
+    // verifica se a solicitação já foi atendida
+    if (solicitation.status !== 'pending') {
+      throw new BadRequestException('Solicitação já atendida.');
+    }
+
+    // verifica se o tipo da solicitação é de usuário
+    if (solicitation.type !== SolicitationType.NewDatabase) {
+      throw new NotFoundException('Tipo de solicitação inválida.');
+    }
+
+    // verifica se o banco já está cadastrado
+    await this.databaseAlreadyExists(databaseData.name);
+
+    // cria o novo usuário e salva ele no banco de dados
+    const database = (
+      await new this.databaseModel(solicitation.data).save()
+    ).toObject();
+
+    if (database) {
+      // Altera status da solicitação
+      await this.solicitationModel.updateOne(
+        {
+          _id: createDatabaseBySolicitationDto.solicitationId,
+        },
+        {
+          status: SolicitationStatus.Aproved,
+        },
+      );
+    }
+
+    return database;
   }
 
   async findAll() {

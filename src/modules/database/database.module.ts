@@ -7,10 +7,14 @@ import { UserModule } from '../user/user.module';
 import { DatabaseController } from './database.controller';
 import { DatabaseService } from './database.service';
 import { DatabaseSchema } from './schema/database.entity';
+import { SolicitationSchema } from '../solicitation/schema/solicitation.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'database', schema: DatabaseSchema }]),
+    MongooseModule.forFeature([
+      { name: 'database', schema: DatabaseSchema },
+      { name: 'solicitation', schema: SolicitationSchema },
+    ]),
     ExamTypeModule,
     ImageTypeModule,
     forwardRef(() => UserModule),
