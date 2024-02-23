@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -21,7 +23,9 @@ export class DatabaseService {
   constructor(
     @InjectModel('database') private readonly databaseModel: Model<Database>,
     @InjectModel('solicitation') private solicitationModel: Model<Solicitation>,
+    @Inject(forwardRef(() => ImageTypeService))
     private readonly imageTypeService: ImageTypeService,
+    @Inject(forwardRef(() => ExamTypeService))
     private readonly examTypeService: ExamTypeService,
   ) {}
 
@@ -137,7 +141,7 @@ export class DatabaseService {
 
     filteredDatabases = filteredDatabases.filter((database) => {
       const regExp = new RegExp(imageType, 'i');
-      return database.imageType.name && database.imageType.name.match(regExp);
+      return database.imageType?.name && database.imageType?.name.match(regExp);
     });
 
     return filteredDatabases || databases;

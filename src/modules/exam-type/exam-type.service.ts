@@ -5,15 +5,17 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { DatabaseService } from '../database/database.service';
 import { CreateExamTypeDto } from './dto/create-exam-type.dto';
+import { ExamTypeFilterDto } from './dto/exam-type.filter.dto';
 import { UpdateExamTypeDto } from './dto/update-exam-type.dto';
 import { ExamType } from './schema/exam-type.entity';
-import { ExamTypeFilterDto } from './dto/exam-type.filter.dto';
 
 @Injectable()
 export class ExamTypeService {
   constructor(
     @InjectModel('examType') private examTypeModel: Model<ExamType>,
+    private readonly databaseService: DatabaseService,
   ) {}
 
   async create(data: CreateExamTypeDto) {
@@ -90,7 +92,18 @@ export class ExamTypeService {
   }
 
   async remove(id: Types.ObjectId) {
-    const examType = await this.examTypeModel.findByIdAndDelete(id).exec();
+    let examType = await this.findOne(id);
+    const databases = await this.databaseService.findAllWithFilter({
+      examType: examType.name,
+    } as any);
+
+    if (databases.length) {
+      throw new BadRequestException(
+        'Não é possível excluir um tipo de exame que está sendo utilizado.',
+      );
+    }
+
+    examType = await this.examTypeModel.findByIdAndDelete(id).exec();
 
     if (!examType) {
       throw new NotFoundException('Tipo de exame não encontrado.');

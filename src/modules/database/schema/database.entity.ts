@@ -8,7 +8,11 @@ export class Database {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'examType' })
+  @Prop({
+    required: true,
+    type: Types.ObjectId,
+    ref: 'examType',
+  })
   examType: any;
 
   @Prop({ required: true })
@@ -17,7 +21,11 @@ export class Database {
   @Prop({ required: true })
   imageQuality: Array<number>;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'imageType' })
+  @Prop({
+    required: true,
+    type: Types.ObjectId,
+    ref: 'imageType',
+  })
   imageType: any;
 
   @Prop({ required: false, default: '' })

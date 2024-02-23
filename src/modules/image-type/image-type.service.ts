@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -9,11 +11,14 @@ import { CreateImageTypeDto } from './dto/create-image-type.dto';
 import { UpdateImageTypeDto } from './dto/update-image-type.dto';
 import { ImageType } from './schema/image-type.entity';
 import { ImageTypeFilterDto } from './dto/image-type-filter.dto';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class ImageTypeService {
   constructor(
     @InjectModel('imageType') private imageTypeModel: Model<ImageType>,
+    @Inject(forwardRef(() => DatabaseService))
+    private readonly databaseService: DatabaseService,
   ) {}
 
   async create(createImageTypeDto: CreateImageTypeDto) {
@@ -91,7 +96,18 @@ export class ImageTypeService {
   }
 
   async remove(id: Types.ObjectId) {
-    const imageType = await this.imageTypeModel.findByIdAndDelete(id).exec();
+    let imageType = await this.findOne(id);
+    const databases = await this.databaseService.findAllWithFilter({
+      imageType: imageType.name,
+    } as any);
+
+    if (databases.length) {
+      throw new BadRequestException(
+        'Não é possível excluir este tipo de imagem, pois ele está associado a um ou mais exames.',
+      );
+    }
+
+    imageType = await this.imageTypeModel.findByIdAndDelete(id).exec();
 
     if (!imageType) {
       throw new NotFoundException('Tipo de imagem não encontrado.');
